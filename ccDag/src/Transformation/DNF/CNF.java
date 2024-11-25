@@ -1,3 +1,5 @@
+package Transformation.DNF;
+
 import java.util.ArrayList;
 
 public class CNF
