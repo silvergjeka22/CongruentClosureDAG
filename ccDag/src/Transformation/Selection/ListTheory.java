@@ -1,95 +1,171 @@
 package Transformation.Selection;
 
 import java.util.*;
-import java.util.regex.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ListTheory {
+public class NestedFunctionExtractor {
 
-    // Maps to store mappings from subformulas to variable names
-    private Map<String, String> equalityMapping = new LinkedHashMap<>();
-    private Map<String, String> arrayMapping = new LinkedHashMap<>();
-    private Map<String, String> listMapping = new LinkedHashMap<>();
+    // Method to extract, map, and replace nested functions
+    public static Map<String, String> extractAndMapNestedFunctions(String formula) {
+        Stack<Integer> stack = new Stack<>();
+        Map<Integer, Integer> matchingParentheses = new HashMap<>();
+        Map<String, String> functionMapping = new LinkedHashMap<>();
 
-    private int equalityVarIndex = 0; // e0, e1, e2...
-    private int arrayVarIndex = 0;    // a0, a1, a2...
-    private int listVarIndex = 0;     // l0, l1, l2...
-
-    public String transformFormula(String formula) {
-        // Patterns for equality, array, and list operations
-        Pattern equalityPattern = Pattern.compile("\\b\\w+\\([^)]*\\)\\s*=\\s*\\w+\\([^)]*\\)"); // e.g., car(x) = cdr(y)
-        Pattern arrayPattern = Pattern.compile("\\b(select|store)\\([^)]*\\)");                // e.g., select(a, b, c)
-        Pattern listPattern = Pattern.compile("\\b(car|cdr|cons|nil)\\([^)]*\\)");             // e.g., car(x), cons(x, y)
-
-        // Replace equality formulas
-        Matcher equalityMatcher = equalityPattern.matcher(formula);
-        while (equalityMatcher.find()) {
-            String subformula = equalityMatcher.group();
-            if (!equalityMapping.containsKey(subformula)) {
-                equalityMapping.put(subformula, "e" + equalityVarIndex);
-                equalityVarIndex++;
+        // Identify matching parentheses using a stack
+        for (int i = 0; i < formula.length(); i++) {
+            char c = formula.charAt(i);
+            if (c == '(') {
+                stack.push(i);
+            } else if (c == ')') {
+                if (!stack.isEmpty()) {
+                    int openIndex = stack.pop();
+                    matchingParentheses.put(openIndex, i);
+                }
             }
-            formula = formula.replace(subformula, equalityMapping.get(subformula));
         }
 
-        // Replace array operations
-        Matcher arrayMatcher = arrayPattern.matcher(formula);
-        while (arrayMatcher.find()) {
-            String subformula = arrayMatcher.group();
-            if (!arrayMapping.containsKey(subformula)) {
-                arrayMapping.put(subformula, "a" + arrayVarIndex);
-                arrayVarIndex++;
+        // Regex to identify valid function names (letters followed by parentheses)
+        String functionPattern = "\\b([A-Za-z]+n|car|cdr|cons|select|store|atom|atoms)\\(";
+        Pattern pattern = Pattern.compile(functionPattern);
+
+        // List to store function bounds (start and end positions)
+        List<int[]> functionBounds = new ArrayList<>();
+        Matcher matcher = pattern.matcher(formula);
+
+        while (matcher.find()) {
+            int start = matcher.start();
+            if (matchingParentheses.containsKey(start + matcher.group().length() - 1)) {
+                int end = matchingParentheses.get(start + matcher.group().length() - 1);
+                functionBounds.add(new int[] { start, end });
             }
-            formula = formula.replace(subformula, arrayMapping.get(subformula));
         }
 
-        // Replace list operations
-        Matcher listMatcher = listPattern.matcher(formula);
-        while (listMatcher.find()) {
-            String subformula = listMatcher.group();
-            if (!listMapping.containsKey(subformula)) {
-                listMapping.put(subformula, "l" + listVarIndex);
-                listVarIndex++;
+        // Sort bounds by start position and length (descending for containment checking)
+        functionBounds.sort((a, b) -> {
+            if (a[0] != b[0]) {
+                return Integer.compare(a[0], b[0]);
             }
-            formula = formula.replace(subformula, listMapping.get(subformula));
+            return Integer.compare(b[1], a[1]);
+        });
+
+        // Filter to retain only top-level functions
+        List<int[]> topLevelBounds = new ArrayList<>();
+        for (int[] bounds : functionBounds) {
+            boolean isContained = false;
+            for (int[] topLevel : topLevelBounds) {
+                if (bounds[0] >= topLevel[0] && bounds[1] <= topLevel[1]) {
+                    isContained = true;
+                    break;
+                }
+            }
+            if (!isContained) {
+                topLevelBounds.add(bounds);
+            }
         }
 
-        // Enclose the final formula in parentheses for consistency
-        return "(" + formula + ")";
+        // Map and replace top-level functions in the formula
+        StringBuilder updatedFormula = new StringBuilder(formula);
+        int offset = 0; // Tracks length adjustments due to replacements
+        int counter = 0;
+
+        for (int[] bounds : topLevelBounds) {
+            String fullFunction = formula.substring(bounds[0], bounds[1] + 1);
+            String functionVar = "f" + counter++; // Assign variable name
+            functionMapping.put(functionVar, fullFunction);
+
+            // Replace the function in the formula
+            int adjustedStart = bounds[0] + offset;
+            int adjustedEnd = bounds[1] + offset;
+            updatedFormula.replace(adjustedStart, adjustedEnd + 1, functionVar);
+
+            // Update the offset due to length change
+            offset += functionVar.length() - fullFunction.length();
+        }
+
+        // Simplify remaining expressions in the updated formula
+        simplifyExpressions(updatedFormula);
+
+        System.out.println("Updated formula: " + updatedFormula);
+        return functionMapping;
     }
 
-    // Method to print all mappings
-    public void printMappings() {
-        System.out.println("Equality Mappings:");
-        equalityMapping.forEach((k, v) -> System.out.println(v + " = (" + k + ")"));
-        System.out.println("Array Mappings:");
-        arrayMapping.forEach((k, v) -> System.out.println(v + " = (" + k + ")"));
-        System.out.println("List Mappings:");
-        listMapping.forEach((k, v) -> System.out.println(v + " = (" + k + ")"));
+    // Method to simplify nested expressions like ((~(...))) -> (~(...)) or (~f7)
+    private static void simplifyExpressions(StringBuilder formula) {
+        String nestedPattern = "\\(\\((~?\\(?f\\d+\\)?)\\)\\)";
+        Pattern pattern = Pattern.compile(nestedPattern);
+        Matcher matcher = pattern.matcher(formula);
+
+        while (matcher.find()) {
+            String simplified = matcher.group(1);
+            formula.replace(matcher.start(), matcher.end(), "(" + simplified + ")");
+            matcher = pattern.matcher(formula); // Reapply to ensure full simplification
+        }
+    }
+
+    // Method to find all sub-formulas with = or != in the updated formula
+    public static List<String> findEqualitySubFormulas(String formula) {
+        List<String> equalitySubFormulas = new ArrayList<>();
+        // Regex to match binary equality or inequality
+        String equalityPattern = "\\b([A-Za-z0-9_]+)\\s*(=|!=)\\s*([A-Za-z0-9_()~]+)\\b";
+        Pattern pattern = Pattern.compile(equalityPattern);
+        Matcher matcher = pattern.matcher(formula);
+
+        while (matcher.find()) {
+            String subFormula = matcher.group();
+            equalitySubFormulas.add(subFormula);
+        }
+
+        return equalitySubFormulas;
     }
 
     public static void main(String[] args) {
-        ListTheory equalityTheory = new ListTheory();
-
+        // Array of complex formulas
         String[] formulas = {
-                "(((~(car(x) = cdr(y))) & (f(x) = x)) | x & (select(a, b, c) & store(h)))",
-                "((cons(x, y, z) = cdr(z)) | (f(x, y) = g(x)) | (select(store(z), x)))",
-                "(((car(x) = nil) & (cdr(y) = cons(a, b))) | (store(a, b) = select(c, d, e)))"
+            "(((a=b)&(Fn(x)=y)|(car(y)=z)&(cdr(z)=car(y))&(~(Hn(Fn(Gn(a,b)),z)=cons(x,y,z)))&(store(x)=((~(atom(z))))))->((a=b)&(Fn(x)=y)|(car(y)=z)&(cdr(z)=car(y))&(~(Hn(Fn(Gn(a,b)),z)=cons(x,y,z)))&(store(x)=((~(atom(z)))))))",
+            "(((p!=q)&(Fn(x)!=y)|(car(x)=z)&(cdr(z)=car(x))&(~(Hn(Fn(Gn(p,q)),z)!=cons(p,q,z)))&(store(p)!=((~(atom(q))))))->((p=q)&(Fn(x)=y)|(car(x)=z)&(cdr(z)=car(x))&(~(Hn(Fn(Gn(p,q)),z)=cons(p,q,z)))&(store(p)=((~(atom(q)))))))",
+            "((x=y)&(~(z!=w))&((a=b)|(c=d))&(~(p!=q)))",
+            "(((Fn(a)!=Fn(b))|(a=b))&(car(c)!=cdr(d))&(Fn(e)=Fn(f))&(~(Hn(Fn(g),Fn(h))=cons(i,j,k))))",
+            "((a!=b)&(Fn(x)=y)|(Gn(a)=z)&(~(Hn(a,b)!=Fn(c,d))))",
+            "((p!=q)&(Fn(a)!=Fn(b))&(car(x)=cdr(y))&(Fn(z)!=Gn(a,b)))",
+            "(Fn(a)=b)&(Fn(x)!=car(y))&(~(cdr(z)!=Fn(cdr(y))))",
+            "((Gn(a,b)!=Fn(c,d))&(car(a)!=cdr(b))|(Gn(c)=Fn(d))&(~(store(x)!=atom(y))))",
+            "(((a=b)|(Fn(x)=y)&(Gn(z)=car(cdr(y)))&(~(Fn(a)!=Fn(b)))&(Fn(x)!=Gn(y))))",
+            "((atom(x)!=nil)&(store(a,b)=select(Fn(c,d)))&(~(Gn(z)!=cons(a,b))))"
         };
+        
 
+        // Process each formula
         for (String formula : formulas) {
-            String transformedFormula = equalityTheory.transformFormula(formula);
-            System.out.println("Original Formula: " + formula);
-            System.out.println("Transformed Formula: " + transformedFormula);
-            equalityTheory.printMappings();
-            System.out.println();
+            System.out.println("------------------------------------------------------");
+            System.out.println("Input formula: " + formula);
 
-            // Clear the mappings for the next formula
-            equalityTheory.equalityMapping.clear();
-            equalityTheory.arrayMapping.clear();
-            equalityTheory.listMapping.clear();
-            equalityTheory.equalityVarIndex = 0;
-            equalityTheory.arrayVarIndex = 0;
-            equalityTheory.listVarIndex = 0;
+            // Extract and map functions
+            Map<String, String> mapping = extractAndMapNestedFunctions(formula);
+
+            // Print function mappings
+            System.out.println("Function mappings:");
+            for (Map.Entry<String, String> entry : mapping.entrySet()) {
+                System.out.println(entry.getKey() + " = " + entry.getValue());
+            }
+
+            // Updated formula with mappings applied
+            String updatedFormula = formula;
+            for (Map.Entry<String, String> entry : mapping.entrySet()) {
+                updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
+            }
+
+            // Simplify nested expressions in the updated formula
+            StringBuilder updatedFormulaBuilder = new StringBuilder(updatedFormula);
+            simplifyExpressions(updatedFormulaBuilder);
+            updatedFormula = updatedFormulaBuilder.toString();
+
+            // Find sub-formulas with = or !=
+            List<String> equalitySubFormulas = findEqualitySubFormulas(updatedFormula);
+            System.out.println("Sub-formulas with = or !=:");
+            for (String subFormula : equalitySubFormulas) {
+                System.out.println(subFormula);
+            }
         }
     }
 }
