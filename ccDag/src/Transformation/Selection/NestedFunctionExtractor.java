@@ -8,7 +8,6 @@ public class NestedFunctionExtractor {
 
     // Method to extract, map, and replace nested functions
     public static Map<String, String> extractAndMapNestedFunctions(String formula) {
-        List<String> nestedFunctions = new ArrayList<>();
         Stack<Integer> stack = new Stack<>();
         Map<Integer, Integer> matchingParentheses = new HashMap<>();
         Map<String, String> functionMapping = new LinkedHashMap<>();
@@ -32,9 +31,8 @@ public class NestedFunctionExtractor {
 
         // List to store function bounds (start and end positions)
         List<int[]> functionBounds = new ArrayList<>();
-
-        // Traverse the formula and extract complete functions
         Matcher matcher = pattern.matcher(formula);
+
         while (matcher.find()) {
             int start = matcher.start();
             if (matchingParentheses.containsKey(start + matcher.group().length() - 1)) {
@@ -85,10 +83,24 @@ public class NestedFunctionExtractor {
             offset += functionVar.length() - fullFunction.length();
         }
 
-        // Print the updated formula
         System.out.println("Updated formula: " + updatedFormula);
-
         return functionMapping;
+    }
+
+    // Method to find all sub-formulas with = or != in the updated formula
+    public static List<String> findEqualitySubFormulas(String formula) {
+        List<String> equalitySubFormulas = new ArrayList<>();
+        // Regex to match binary equality or inequality
+        String equalityPattern = "\\b([A-Za-z0-9_]+)\\s*(=|!=)\\s*([A-Za-z0-9_]+)\\b";
+        Pattern pattern = Pattern.compile(equalityPattern);
+        Matcher matcher = pattern.matcher(formula);
+
+        while (matcher.find()) {
+            String subFormula = matcher.group();
+            equalitySubFormulas.add(subFormula);
+        }
+
+        return equalitySubFormulas;
     }
 
     public static void main(String[] args) {
@@ -98,19 +110,36 @@ public class NestedFunctionExtractor {
             "((p=store(x))|(Fn(a,b)=Hn(c))&(select(q)=z)&(~(Gn(z)))->((x=Fn(Hn(y)))|(car(z)=cons(a,b))))",
             "((atom(a))&(nil=Fn(x))|(select(store(a,b))=cdr(Fn(x,y))))",
             "(Hn(Fn(Gn(a,b)),c)=cons(x,car(Fn(b,c))))&(nil=Fn(Hn(z)))",
-            "(~(store(a,b)=select(Fn(c,d))))|(nil=atom(Fn(Gn(x))))"
+            "(~(store(a,b)=select(Fn(c,d))))|(nil=atom(Fn(Gn(x))))",
+            "((Hn(f,g)!=Gn(h))&(Fn(x)!=y)|(car(z)=a))", // Additional formula
+            "(x=Fn(Hn(y)))&(car(z)!=cons(a,b))" // Additional formula
         };
 
         // Process each formula
         for (String formula : formulas) {
             System.out.println("------------------------------------------------------");
             System.out.println("Input formula: " + formula);
-            System.out.println("Extracting and mapping nested functions:");
+
+            // Extract and map functions
             Map<String, String> mapping = extractAndMapNestedFunctions(formula);
 
             // Print function mappings
+            System.out.println("Function mappings:");
             for (Map.Entry<String, String> entry : mapping.entrySet()) {
                 System.out.println(entry.getKey() + " = " + entry.getValue());
+            }
+
+            // Updated formula with mappings applied
+            String updatedFormula = formula;
+            for (Map.Entry<String, String> entry : mapping.entrySet()) {
+                updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
+            }
+
+            // Find sub-formulas with = or !=
+            List<String> equalitySubFormulas = findEqualitySubFormulas(updatedFormula);
+            System.out.println("Sub-formulas with = or !=:");
+            for (String subFormula : equalitySubFormulas) {
+                System.out.println(subFormula);
             }
         }
     }
