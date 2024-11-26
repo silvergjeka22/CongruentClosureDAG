@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class NestedFunctionExtractor {
 
-    // Method to extract and print full nested functions
+    // Method to extract and print top-level nested functions
     public static List<String> extractNestedFunctions(String formula) {
         List<String> nestedFunctions = new ArrayList<>();
         Stack<Integer> stack = new Stack<>();
@@ -29,16 +29,47 @@ public class NestedFunctionExtractor {
         String functionPattern = "\\b([A-Za-z]+n|car|cdr|cons|select|store|atom|atoms)\\(";
         Pattern pattern = Pattern.compile(functionPattern);
 
+        // List to store function bounds (start and end positions)
+        List<int[]> functionBounds = new ArrayList<>();
+
         // Traverse the formula and extract complete functions
         Matcher matcher = pattern.matcher(formula);
         while (matcher.find()) {
             int start = matcher.start();
             if (matchingParentheses.containsKey(start + matcher.group().length() - 1)) {
                 int end = matchingParentheses.get(start + matcher.group().length() - 1);
-                String fullFunction = formula.substring(start, end + 1);
-                nestedFunctions.add(fullFunction);
-                System.out.println("Found nested function: " + fullFunction);
+                functionBounds.add(new int[] { start, end });
             }
+        }
+
+        // Sort bounds by start position and length (descending for containment checking)
+        functionBounds.sort((a, b) -> {
+            if (a[0] != b[0]) {
+                return Integer.compare(a[0], b[0]);
+            }
+            return Integer.compare(b[1], a[1]);
+        });
+
+        // Filter to retain only top-level functions
+        List<int[]> topLevelBounds = new ArrayList<>();
+        for (int[] bounds : functionBounds) {
+            boolean isContained = false;
+            for (int[] topLevel : topLevelBounds) {
+                if (bounds[0] >= topLevel[0] && bounds[1] <= topLevel[1]) {
+                    isContained = true;
+                    break;
+                }
+            }
+            if (!isContained) {
+                topLevelBounds.add(bounds);
+            }
+        }
+
+        // Extract top-level functions from the formula
+        for (int[] bounds : topLevelBounds) {
+            String fullFunction = formula.substring(bounds[0], bounds[1] + 1);
+            nestedFunctions.add(fullFunction);
+            System.out.println("Found nested function: " + fullFunction);
         }
 
         return nestedFunctions;
