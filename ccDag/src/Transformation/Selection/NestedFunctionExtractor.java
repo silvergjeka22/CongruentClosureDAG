@@ -6,12 +6,13 @@ import java.util.regex.Pattern;
 
 public class NestedFunctionExtractor {
 
-    // Method to extract and print top-level nested functions
-    public static List<String> extractNestedFunctions(String formula) {
+    // Method to extract, map, and replace nested functions
+    public static Map<String, String> extractAndMapNestedFunctions(String formula) {
         List<String> nestedFunctions = new ArrayList<>();
         Stack<Integer> stack = new Stack<>();
         Map<Integer, Integer> matchingParentheses = new HashMap<>();
-        
+        Map<String, String> functionMapping = new LinkedHashMap<>();
+
         // Identify matching parentheses using a stack
         for (int i = 0; i < formula.length(); i++) {
             char c = formula.charAt(i);
@@ -65,14 +66,29 @@ public class NestedFunctionExtractor {
             }
         }
 
-        // Extract top-level functions from the formula
+        // Map and replace top-level functions in the formula
+        StringBuilder updatedFormula = new StringBuilder(formula);
+        int offset = 0; // Tracks length adjustments due to replacements
+        int counter = 0;
+
         for (int[] bounds : topLevelBounds) {
             String fullFunction = formula.substring(bounds[0], bounds[1] + 1);
-            nestedFunctions.add(fullFunction);
-            System.out.println("Found nested function: " + fullFunction);
+            String functionVar = "f" + counter++; // Assign variable name
+            functionMapping.put(functionVar, fullFunction);
+
+            // Replace the function in the formula
+            int adjustedStart = bounds[0] + offset;
+            int adjustedEnd = bounds[1] + offset;
+            updatedFormula.replace(adjustedStart, adjustedEnd + 1, functionVar);
+
+            // Update the offset due to length change
+            offset += functionVar.length() - fullFunction.length();
         }
 
-        return nestedFunctions;
+        // Print the updated formula
+        System.out.println("Updated formula: " + updatedFormula);
+
+        return functionMapping;
     }
 
     public static void main(String[] args) {
@@ -89,8 +105,13 @@ public class NestedFunctionExtractor {
         for (String formula : formulas) {
             System.out.println("------------------------------------------------------");
             System.out.println("Input formula: " + formula);
-            System.out.println("Extracting nested functions:");
-            extractNestedFunctions(formula);
+            System.out.println("Extracting and mapping nested functions:");
+            Map<String, String> mapping = extractAndMapNestedFunctions(formula);
+
+            // Print function mappings
+            for (Map.Entry<String, String> entry : mapping.entrySet()) {
+                System.out.println(entry.getKey() + " = " + entry.getValue());
+            }
         }
     }
 }
