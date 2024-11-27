@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NestedFunctionExtractor {
+public class ListTheory {
 
     // Method to extract, map, and replace nested functions
     public static Map<String, String> extractAndMapNestedFunctions(String formula) {
