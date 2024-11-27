@@ -116,6 +116,13 @@ public class NestedFunctionExtractor {
 String[] formulas = {
     "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
     "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
+    // New formulas added
+    "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
+    "(~(select(store(x, y)))) = (~(Fn(a,b))) | ((Gn(p,q) != Fn(r,s)) & ((~(Fn(t,u))) = select(store(v,w))))",
+    "((Fn(a) != Fn(b)) | ((~(Gn(x, y))) = (~(Fn(z, w))))) & (Fn(m) = select(store(n, o)))",
+    "((~(Fn(f,g))) = (~(Fn(h,i)))) & ((~(Fn(j,k))) != Fn(l,m)) | (select(store(x, y, z)) = Fn(a,b))",
+    "((~(Fn(a,b))) != (~(Fn(c,d)))) & ((Fn(e) = cons(f,g)) | ((~(Fn(h,i))) = Fn(j,k)))",
+    "((~(select(a))) != Fn(b,c)) & ((Fn(d,e) = (~(Fn(f,g))))) | ((~(select(h))) = Fn(i,j))"
 };
 
 
