@@ -107,26 +107,37 @@ public class NestedFunctionExtractor {
         }
         return equalitySubFormulas;
     }
-    
-    
+
+    // Method to replace equality sub-formulas with indexed terms (e0, e1, etc.)
+    public static String replaceWithIndexedTerms(String formula, List<String> equalitySubFormulas) {
+        String updatedFormula = formula;
+        Map<String, String> subFormulaMapping = new LinkedHashMap<>();
+        int counter = 0;
+
+        // Replace equality sub-formulas with e0, e1, ...
+        for (String subFormula : equalitySubFormulas) {
+            String indexedTerm = "e" + counter++;
+            subFormulaMapping.put(indexedTerm, subFormula);
+            updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
+        }
+
+        System.out.println("Updated formula equality/disequality: " + updatedFormula);
+        return updatedFormula;
+    }
 
     public static void main(String[] args) {
-// Array of complex formulas
-// Array of complex formulas
-String[] formulas = {
-    "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
-    "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
-    // New formulas added
-    "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
-    "(~(select(store(x, y)))) = (~(Fn(a,b))) | ((Gn(p,q) != Fn(r,s)) & ((~(Fn(t,u))) = select(store(v,w))))",
-    "((Fn(a) != Fn(b)) | ((~(Gn(x, y))) = (~(Fn(z, w))))) & (Fn(m) = select(store(n, o)))",
-    "((~(Fn(f,g))) = (~(Fn(h,i)))) & ((~(Fn(j,k))) != Fn(l,m)) | (select(store(x, y, z)) = Fn(a,b))",
-    "((~(Fn(a,b))) != (~(Fn(c,d)))) & ((Fn(e) = cons(f,g)) | ((~(Fn(h,i))) = Fn(j,k)))",
-    "((~(select(a))) != Fn(b,c)) & ((Fn(d,e) = (~(Fn(f,g))))) | ((~(select(h))) = Fn(i,j))"
-};
-
-
-
+        // Array of complex formulas
+        String[] formulas = {
+            "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
+            "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
+            // New formulas added
+            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
+            "(~(select(store(x, y)))) = (~(Fn(a,b))) | ((Gn(p,q) != Fn(r,s)) & ((~(Fn(t,u))) = select(store(v,w))))",
+            "((Fn(a) != Fn(b)) | ((~(Gn(x, y))) = (~(Fn(z, w))))) & (Fn(m) = select(store(n, o)))",
+            "((~(Fn(f,g))) = (~(Fn(h,i)))) & ((~(Fn(j,k))) != Fn(l,m)) | (select(store(x, y, z)) = Fn(a,b))",
+            "((~(Fn(a,b))) != (~(Fn(c,d)))) & ((Fn(e) = cons(f,g)) | ((~(Fn(h,i))) = Fn(j,k)))",
+            "((~(select(a))) != Fn(b,c)) & ((Fn(d,e) = (~(Fn(f,g))))) | ((~(select(h))) = Fn(i,j))"
+        };
 
         // Process each formula
         for (String formula : formulas) {
@@ -154,6 +165,9 @@ String[] formulas = {
             for (String subFormula : equalitySubFormulas) {
                 System.out.println(subFormula);
             }
+
+            // Replace equality sub-formulas with indexed terms (e0, e1, ...)
+            String finalUpdatedFormula = replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
         }
     }
 }
