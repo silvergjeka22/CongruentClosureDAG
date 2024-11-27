@@ -1,7 +1,6 @@
-import java.util.*;
+package CCAlgorithm.bean;
 
-import CCAlgorithm.bean.Node;
-import CCAlgorithm.bean.TermPair;
+import java.util.*;
 
 public class CCobject{
 	
