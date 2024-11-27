@@ -5,41 +5,29 @@ import Transformation.Selection.NestedFunctionExtractor;
 
 public class ParsingDnf {
 
-    // Method to transform the formula according to the specified rules
     public static String transformFormula(String formula) {
-        // Remove spaces around operators and parentheses for consistency
-        formula = formula.replaceAll("\\s+", "");
 
-        // 1. Insert the formula in parentheses if not already enclosed in parentheses
-        if (!formula.startsWith("(") && !formula.endsWith(")")) {
-            formula = "(" + formula + ")";
-        }
-
-        // 2. Handle single vars like e1 without parentheses (e1 should appear as e1, not (e1))
+        // if the var have () and there is non a ~ than take of the () if they have like
+        // (a) = a
         formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
+        // if the var have ~ have to be written like (~a)
+        formula = formula.replaceAll("~(\\w+)", "~$1"); // Handle simple variables with ~
+        formula = formula.replaceAll("~\\(", "(~("); // Handle negation of complex formulas // adding 2 parethenesis to
+                                                     // contain all the formula
 
-        // 3. If there is a '~', it should be written as (~(formula)) or (~var)
-        formula = formula.replaceAll("~(\\w+)", "(~$1)");  // Handle simple variables with ~
-        formula = formula.replaceAll("~\\(", "(~(");  // Handle negation of complex formulas
+        formula = "(" + formula + ")";
 
-        // 4. Respect the formula syntax: (, ), &, |, ~, ->, <->
-        // Ensure correct formatting for equality expressions (no spaces around =)
-        formula = formula.replaceAll("(\\w+)\\s*(=|!=|->|<->)\\s*(\\w+)", "$1$2$3");
+        // take of the spaces
+        //formula = formula.replaceAll(" ", "");
 
-        // 5. Remove unnecessary parentheses around simple variables (e.g., (f0) should become f0)
-        formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
+        // This regex will handle formulas where we need to ensure the & operator is
+        // evaluated first.
+        formula = formula.replaceAll("\\((\\w+)([&|])(\\w+)([&|])(\\w+)\\)", "($1$2$3$4$5)");
 
-        // 6. Gripping the formula with parentheses where necessary for clarity
-        // Add parentheses around grouped expressions that need to be grouped
-        formula = formula.replaceAll("\\(([^()]+)\\)", "($1)");
-
-        // 7. Ensure that equality expressions are formatted without unnecessary parentheses
-        formula = formula.replaceAll("\\((f\\d+)\\)\\s*=\\s*(f\\d+)", "$1=$2");
-
-        // 8. Ensure the entire formula is wrapped in parentheses
-        if (!formula.startsWith("(") || !formula.endsWith(")")) {
-            formula = "(" + formula + ")";
-        }
+        // Then we ensure that expressions like (a|b&c) become (a|(b&c)) and (a&b|c)
+        // becomes ((a&b)|c).
+        formula = formula.replaceAll("\\((\\w+)([&|])(\\w+)&(\\w+)\\)", "($1$2$3&$4)"); // For cases like (a|b&c)
+        formula = formula.replaceAll("\\((\\w+)&(\\w+)([&|])(\\w+)\\)", "($1&$2$3$4)"); // For cases like (a&b|c)
 
         return formula;
     }
@@ -73,7 +61,8 @@ public class ParsingDnf {
             }
 
             // Replace equality sub-formulas with indexed terms (e0, e1, ...)
-            String finalUpdatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
+            String finalUpdatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula,
+                    equalitySubFormulas);
 
             // Print the final updated formula
             System.out.println("Final updated formula: " + finalUpdatedFormula);
@@ -87,17 +76,17 @@ public class ParsingDnf {
 
     public static void main(String[] args) {
         String[] formulas = {
-            "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
-            "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
-            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
-            // New formulas
-            "((~(Fn(a,b))) = (~(Fn(c,d)))) | (Gn(x) != select(store(y))) & ((Fn(z) != cons(a,b)) | (Fn(p,q) = store(x)))",
-            "(Fn(x,y) != (~(Fn(a,b) = Fn(c,d)))) & (select(x) = select(y)) | (Fn(p) = cons(q, r))",
-            "((~(Fn(p,q))) != Fn(r)) & (select(a,b) = (~(Fn(x,y)))) | (~(Fn(x) != Fn(y)))",
-            "Fn(a) = select(store(a)) & ((~(Fn(x))) = (~(Gn(y)))) | (Fn(a,b) = cons(x,y))",
-            "Fn(~(Fn(a,b))) = Fn(c,d) | ((~(Fn(e,f))) != cons(a,b)) & ((select(x) != Fn(y,z)) | Fn(p) = store(x))",
-            "((~(Fn(a,b))) = (~(Fn(x,y)))) | (Fn(p,q) != select(store(a,b))) & (Fn(z) != cons(a,b))",
-            "(select(store(x)) = Fn(a,b)) & ((Fn(a) != Fn(b)) | (Gn(a) = cons(b,c)))"
+                "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
+                "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
+                "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
+                // New formulas
+                "((~(Fn(a,b))) = (~(Fn(c,d)))) | (Gn(x) != select(store(y))) & ((Fn(z) != cons(a,b)) | (Fn(p,q) = store(x)))",
+                "(Fn(x,y) != (~(Fn(a,b) = Fn(c,d)))) & (select(x) = select(y)) | (Fn(p) = cons(q, r))",
+                "((~(Fn(p,q))) != Fn(r)) & (select(a,b) = (~(Fn(x,y)))) | (~(Fn(x) != Fn(y)))",
+                "Fn(a) = select(store(a)) & ((~(Fn(x))) = (~(Gn(y)))) | (Fn(a,b) = cons(x,y))",
+                "Fn(~(Fn(a,b))) = Fn(c,d) | ((~(Fn(e,f))) != cons(a,b)) & ((select(x) != Fn(y,z)) | Fn(p) = store(x))",
+                "((~(Fn(a,b))) = (~(Fn(x,y)))) | (Fn(p,q) != select(store(a,b))) & (Fn(z) != cons(a,b))",
+                "(select(store(x)) = Fn(a,b)) & ((Fn(a) != Fn(b)) | (Gn(a) = cons(b,c)))"
         };
 
         // Process formulas
