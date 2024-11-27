@@ -89,46 +89,33 @@ public class NestedFunctionExtractor {
 
     public static List<String> findEqualitySubFormulas(String formula) {
         List<String> equalitySubFormulas = new ArrayList<>();
-        
-        // Regex to match equality or inequality sub-formulas with potential nested negations
-        String equalityPattern = "\\b([A-Za-z0-9_]+)\\s*(=|!=)\\s*~?\\(\\~?\\([^)]+\\)\\)|\\b([A-Za-z0-9_]+)\\s*(=|!=)\\s*([A-Za-z0-9_~(]+)\\b";
-        
-        // Compile the pattern to match either equality or inequality
+    
+        // Updated regex to match equality or inequality sub-formulas with nested negations
+        String equalityPattern = "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*\\(~?\\([^()]*\\)\\)|" +
+                                 "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*[A-Za-z0-9_]+|" +
+                                 "[A-Za-z0-9_]+\\s*(=|!=)\\s*\\(~?\\([^()]*\\)\\)|" +
+                                 "\\b([A-Za-z0-9_~(]+)\\s*(=|!=)\\s*([A-Za-z0-9_~(]+)\\b";
+    
+        // Compile the regex
         Pattern pattern = Pattern.compile(equalityPattern);
         Matcher matcher = pattern.matcher(formula);
     
         while (matcher.find()) {
-            // Capture sub-formulas based on the regex matches
+            // Extract and clean the matched sub-formula
             String subFormula = matcher.group().trim();
             equalitySubFormulas.add(subFormula);
         }
-    
         return equalitySubFormulas;
     }
+    
     
 
     public static void main(String[] args) {
 // Array of complex formulas
 // Array of complex formulas
 String[] formulas = {
-    "(~(Fn(a,b)) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
-    "(((atom(x) = (~(Gn(y,z))))) & ((p = q) | (r != s))) & ((select(a) = (~(Fn(a,b)))) | (store(x) = y))",
-    "((Fn(a,b) = (~(Gn(c,d)))) & (select(x) != Fn(a,b))) | ((p = q) & (r != (~(Fn(x) = Gn(y))))))",
-    "(((Hn(Fn(x,y), z) = (~(Gn(a,b)))) & (Fn(c,d) != store(x))) & (x = Fn(y,z)))",
-    "((~(Fn(x,y)) = (~(Gn(z,w))))) & (Fn(a,b) = (~(select(c,d))))) | (x != (Fn(e,f)))",
-    "((Fn(x,y) = (~(Hn(a,b,c)))) & (select(x) != (~(Gn(y,z))))) | ((Gn(a) != Fn(b,c)) & (car(d) = select(e)))",
-    "(((~(Fn(a,b)) != c)) & (Fn(x,y) = Gn(z))) | (car(x) = Fn(y))) & (select(z) = (~(Fn(a,b))))",
-    "(~((Fn(a,b) = Gn(c,d)) & (Hn(x,y) = Fn(z))) | (car(x) = (~(Fn(a,b)))))",
-    "((~(Fn(a,b)) != (~(Gn(c,d)))) & (Fn(x,y) = Gn(z,w))) | (select(a) = (~(Fn(b,c))))",
-    "(((Fn(a) = (~(Hn(b)))) & (Gn(x) = (~(Fn(c))))) | (Fn(d,e) = select(f))) & (car(g) = (~(Fn(h,i))))",
-    "((~(Fn(a,b)) != Gn(x))) & ((Gn(y) != (~(Fn(z)))) | (Fn(x) = car(y)))) | (car(z) = (~(Fn(a,b))))",
-    "(((Fn(a,b) = (~(Gn(c,d)))) | (select(x) != (~(Fn(a,b))))) & (Fn(x) = (Gn(a,b))))",
-    "(~((select(x) = Fn(a)) | ((Fn(b) != (~(Gn(c))) & (select(d) = (~Fn(e))))))",
-    "(((Fn(x,y) = (~(Gn(z)))) & (car(x) != (~(Fn(a,b)))))) | (Fn(y) != select(z))) & (x = (~(Gn(a,b))))",
-    "(((Fn(a,b) = (~(Gn(c,d)))) & (select(x) != Fn(a,b))) | (Fn(y) != (select(a) = (~(Gn(z))))))",
-    "((~(Fn(a,b)) = (~(Gn(c,d)))) & (Fn(x) = (~(select(y)))))) | ((p != q) & (Fn(z) = select(a)))",
-    "(((~(Fn(a)) = (~(Fn(b)))) & (Gn(x) = (~(Fn(a,b)))))) & (Fn(c) != select(x))) | (Gn(y) = (~(Fn(z))))",
-    "(((Fn(x,y) = (~(Gn(z)))) & (select(x) != (~(Gn(c,d)))))) | (select(a) = Fn(b))) & (Fn(a) != (~(Gn(y,z))))"
+    "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
+    "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
 };
 
 
