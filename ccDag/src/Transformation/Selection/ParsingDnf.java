@@ -97,12 +97,6 @@ public class ParsingDnf {
 
     public static void main(String[] args) {
         String[] formulas = {
-                "(e0) & (e1 | (e2)) | ~(e3&~(e4))",
-                //"(e0) & (e1 | (e2)) | ~(e3&~(e4))",  // Nested negations
-                //"~(e0 & ~(e1 | e2))",                // Multiple levels of negations
-                //"~(~e0 & ~(e1 & e2))",               // Deeply nested negations
-                //"~e0 | ~(~(e1))",                    // Single negations mixed with nested
-         
            /*
             "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
             "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
@@ -114,8 +108,9 @@ public class ParsingDnf {
             "Fn(~(Fn(a,b))) = Fn(c,d) | ((~(Fn(e,f))) != cons(a,b)) & ((select(x) != Fn(y,z)) | Fn(p) = store(x))",
             "((~(Fn(a,b))) = (~(Fn(x,y)))) | (Fn(p,q) != select(store(a,b))) & (Fn(z) != cons(a,b))",
             "(select(store(x)) = Fn(a,b)) & ((Fn(a) != Fn(b)) | (Gn(a) = cons(b,c)))",
+            */
             "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))"
-             */
+             
     };
 
         // Process formulas
