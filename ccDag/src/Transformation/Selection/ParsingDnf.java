@@ -3,18 +3,54 @@ package Transformation.Selection;
 import java.util.*;
 import Transformation.Selection.NestedFunctionExtractor;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class ParsingDnf {
 
     public static String transformFormula(String formula) {
-        // Step 1.1: Normalize variables like (x) to x
+        // Step 1.1: Normalize variables like (eX) to eX
         formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
     
         // Step 1.2: Ensure negated variables like ~eX are written as (~eX)
         formula = formula.replaceAll("~(e[0-9]+)(?!\\))", "(~$1)");
-
+    
+        // Step 1.3: Wrap the entire formula in parentheses if they don't already exist
+        if (!formula.matches("^\\(.*\\)$")) {
+            formula = "(" + formula + ")";
+        }
+    
+        // Step 1.4: Handle negated formulas (~(formula)) properly to avoid over-wrapping
+        Pattern negatedFormulaPattern = Pattern.compile("~\\(([^()]+)\\)"); // Match negated formulas
+        Matcher matcher = negatedFormulaPattern.matcher(formula);
+    
+        StringBuffer sb = new StringBuffer();
+        while (matcher.find()) {
+            String innerFormula = matcher.group(1); // Extract the inner formula
+            // Recursively transform the inner formula
+            String transformedInner = transformFormula(innerFormula);
+    
+            // If the inner formula is already wrapped in parentheses, no need to wrap again
+            if (transformedInner.matches("^\\(.*\\)$")) {
+                matcher.appendReplacement(sb, Matcher.quoteReplacement("(~" + transformedInner + ")"));
+            } else {
+                // Otherwise, wrap the transformed inner formula with parentheses
+                matcher.appendReplacement(sb, Matcher.quoteReplacement("(~(" + transformedInner + "))"));
+            }
+        }
+        matcher.appendTail(sb);
+        formula = sb.toString();
+    
+        // Step 1.5: Remove redundant parentheses around negated formulas
+        formula = formula.replaceAll("\\(\\(~\\(([^()]+)\\)\\)\\)", "(~($1))");
     
         return formula;
     }
+    
+    
+    
+    
+    
     
 
     public static void processFormulas(String[] formulas) {
@@ -61,7 +97,11 @@ public class ParsingDnf {
 
     public static void main(String[] args) {
         String[] formulas = {
-           "(e0) & (e1 | (e2)) | ~(e3)",
+                "(e0) & (e1 | (e2)) | ~(e3&~(e4))",
+                //"(e0) & (e1 | (e2)) | ~(e3&~(e4))",  // Nested negations
+                //"~(e0 & ~(e1 | e2))",                // Multiple levels of negations
+                //"~(~e0 & ~(e1 & e2))",               // Deeply nested negations
+                //"~e0 | ~(~(e1))",                    // Single negations mixed with nested
          
            /*
             "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
