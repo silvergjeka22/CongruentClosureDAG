@@ -58,42 +58,50 @@ public class ParsingDnf {
             String formula = formulas[i];
             System.out.println("------------------------------------------------------");
             System.out.println("Input formula: " + formula);
-
+    
             // Extract and map functions
             Map<String, String> mapping = NestedFunctionExtractor.extractAndMapNestedFunctions(formula);
-
+    
             // Print function mappings
             System.out.println("Function mappings:");
             for (Map.Entry<String, String> entry : mapping.entrySet()) {
                 System.out.println(entry.getKey() + " = " + entry.getValue());
             }
-
+    
             // Updated formula with mappings applied
             String updatedFormula = formula;
             for (Map.Entry<String, String> entry : mapping.entrySet()) {
                 updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
             }
-
+    
             // Find sub-formulas with = or !=
             List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
             System.out.println("Sub-formulas with = or !=:");
             for (String subFormula : equalitySubFormulas) {
                 System.out.println(subFormula);
             }
-
+    
             // Replace equality sub-formulas with indexed terms (e0, e1, ...)
-            String finalUpdatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula,
-                    equalitySubFormulas);
-
-            // Print the final updated formula
-            System.out.println("Final updated formula: " + finalUpdatedFormula);
-
+            Map<String, String> equalityMappings = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
+    
+            // Print equality mappings
+            System.out.println("Equality mappings (e terms):");
+            for (Map.Entry<String, String> entry : equalityMappings.entrySet()) {
+                if (!entry.getKey().equals("Updated Formula")) { // Skip the updated formula in the mappings
+                    System.out.println(entry.getKey() + " = " + entry.getValue());
+                }
+            }
+    
+            // Print the final updated formula after mapping equality sub-formulas
+            System.out.println("Final updated formula: " + equalityMappings.get("Updated Formula"));
+    
             // Apply transformation to respect the specified syntax
-            String transformedFormula = transformFormula(finalUpdatedFormula);
+            String transformedFormula = transformFormula(equalityMappings.get("Updated Formula"));
             System.out.println("Transformed formula: " + transformedFormula);
             System.out.println("------------------------------------------------------");
         }
     }
+    
 
     public static void main(String[] args) {
         String[] formulas = {

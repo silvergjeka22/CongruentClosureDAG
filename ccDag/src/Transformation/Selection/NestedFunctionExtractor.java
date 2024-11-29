@@ -109,19 +109,20 @@ public class NestedFunctionExtractor {
     }
 
     // Method to replace equality sub-formulas with indexed terms (e0, e1, etc.)
-    public static String replaceWithIndexedTerms(String formula, List<String> equalitySubFormulas) {
+    public static Map<String, String> replaceWithIndexedTerms(String formula, List<String> equalitySubFormulas) {
         String updatedFormula = formula;
         Map<String, String> subFormulaMapping = new LinkedHashMap<>();
         int counter = 0;
-
+    
         // Replace equality sub-formulas with e0, e1, ...
         for (String subFormula : equalitySubFormulas) {
             String indexedTerm = "e" + counter++;
             subFormulaMapping.put(indexedTerm, subFormula);
             updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
         }
-
+    
         System.out.println("Updated formula equality/disequality: " + updatedFormula);
-        return updatedFormula;
-    }
+        subFormulaMapping.put("Updated Formula", updatedFormula); // Add the updated formula for consistency
+        return subFormulaMapping;
+    }    
 }
