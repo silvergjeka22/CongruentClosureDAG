@@ -11,25 +11,25 @@ public class ParsingDnf {
     public static String transformFormula(String formula) {
         // Step 1.1: Normalize variables like (eX) to eX
         formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
-    
+
         // Step 1.2: Ensure negated variables like ~eX are written as (~eX)
         formula = formula.replaceAll("~(e[0-9]+)(?!\\))", "(~$1)");
-    
+
         // Step 1.3: Wrap the entire formula in parentheses if they don't already exist
         if (!formula.matches("^\\(.*\\)$")) {
             formula = "(" + formula + ")";
         }
-    
+
         // Step 1.4: Handle negated formulas (~(formula)) properly to avoid over-wrapping
         Pattern negatedFormulaPattern = Pattern.compile("~\\(([^()]+)\\)"); // Match negated formulas
         Matcher matcher = negatedFormulaPattern.matcher(formula);
-    
+
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
             String innerFormula = matcher.group(1); // Extract the inner formula
             // Recursively transform the inner formula
             String transformedInner = transformFormula(innerFormula);
-    
+
             // If the inner formula is already wrapped in parentheses, no need to wrap again
             if (transformedInner.matches("^\\(.*\\)$")) {
                 matcher.appendReplacement(sb, Matcher.quoteReplacement("(~" + transformedInner + ")"));
@@ -40,32 +40,33 @@ public class ParsingDnf {
         }
         matcher.appendTail(sb);
         formula = sb.toString();
-    
+
         // Step 1.5: Remove redundant parentheses around negated formulas
         formula = formula.replaceAll("\\(\\(~\\(([^()]+)\\)\\)\\)", "(~($1))");
-    
+
         return formula;
     }
 
-    public static void processFormulas(String[] formulas) {
+    public static String processFormulas(String[] formulas) {
+        String resultFormula = null;
         for (int i = 0; i < formulas.length; i++) {
             String formula = formulas[i];
-            System.out.println("------------------------------------------------------");    
+
             // Extract and map functions
             Map<String, String> mapping = NestedFunctionExtractor.extractAndMapNestedFunctions(formula);
-        
+
             // Updated formula with function mappings applied
             String updatedFormula = formula;
             for (Map.Entry<String, String> entry : mapping.entrySet()) {
                 updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
             }
-        
+
             // Find sub-formulas with = or !=
             List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
-        
+
             // Replace equality sub-formulas with indexed terms (e0, e1, ...)
             Map<String, String> equalityMappings = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
-    
+
             // Print function and equality mappings together
             System.out.println("Function and Equality Mappings:");
     
@@ -97,21 +98,10 @@ public class ParsingDnf {
             }
     
             System.out.println("------------------------------------------------------");
+
             // Apply transformation to respect the specified syntax
-            String transformedFormula = transformFormula(equalityMappings.get("Updated Formula"));
-            System.out.println("Ready For DNF: " + transformedFormula);
-            System.out.println("------------------------------------------------------");
+            resultFormula = transformFormula(equalityMappings.get("Updated Formula"));
         }
-    }
-    
-    
-
-    public static void main(String[] args) {
-        String[] formulas = {
-            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))"
-        };
-
-        // Process formulas
-        processFormulas(formulas);
+        return resultFormula;  // Return the transformed formula
     }
 }

@@ -3,98 +3,105 @@ package Transformation.DNF2;
 import java.util.*;
 
 public class Calculator {
-	public static void main(String[] args) {
-		System.out.print("Syntax : ( , ) , & , | , ~ , -> , <->\n\n>>  ");
-		String data = new Scanner(System.in).nextLine();
-		ArrayList<String> Literals = new ArrayList<>();
-		StringTokenizer mytoken = new StringTokenizer(data, " )(<>-~&|");
-		while (mytoken.hasMoreTokens()) {
-			String temp = mytoken.nextToken();
-			// System.out.println(temp);
-			if (!Literals.contains(temp)) {
-				Literals.add(temp);
-			}
-		}
-		int[][] literalsTF = new int[(int) Math.pow(2, Literals.size())][Literals.size()];
-		for (int i = 0; i < (int) Math.pow(2, Literals.size()); i++) {
-			String temp = Integer.toBinaryString(i);
-			while (temp.length() < Literals.size())
-				temp = "0" + temp;
-			for (int j = 0; j < Literals.size(); j++) {
-				literalsTF[i][j] = temp.toCharArray()[j] - 48;
-			}
-		}
-		// for (int i = 0; i < (int) Math.pow(2, Literals.size()); i++) {
-		//
-		// for (int j = 0; j < Literals.size(); j++) {
-		// System.out.print(literalsTF[i][j] + " ");
-		// }
-		// System.out.println();
-		// }
-		ArrayList<Literal> Ldata = new ArrayList<>();
-		for (int i = 0; i < Literals.size(); i++) {
-			int[] tempTF = new int[(int) Math.pow(2, Literals.size())];
-			for (int j = 0; j < (int) Math.pow(2, Literals.size()); j++) {
-				tempTF[j] = literalsTF[j][i];
-			}
-			Ldata.add(new Literal(Literals.get(i), tempTF));
-		}
-		for (Literal literal : Ldata) {
-			literal.printMe();
-		}
-		Stack<Literal> stack = new Stack<>();
-		char[] Cdata = data.toCharArray();
-		// data = "(" + data + ")";
-		data = data.replace("(", " ( ");
-		data = data.replace(")", " )");
-		data = data.replace("~", " ~ ");
-		data = data.replace("&", " & ");
-		data = data.replace("|", " | ");
-		data = data.replace("<->", " <-> ");
-		data = data.replace("->", " -> ");
-		mytoken = new StringTokenizer(data, " ");
-		while (mytoken.hasMoreTokens()) {
-			String temp = mytoken.nextToken();
-			if (temp.equals("&")) {
-				stack.push(new Literal("&", null));
-			} else if (temp.equals("|")) {
-				stack.push(new Literal("|", null));
-			} else if (temp.equals("->")) {
-				stack.push(new Literal("->", null));
-			} else if (temp.equals("<->")) {
-				stack.push(new Literal("<->", null));
-			} else if (temp.equals("~")) {
-				stack.push(new Literal("~", null));
 
-			} else if (temp.equals(")")) {
-				Literal b = stack.pop();
-				Literal func = stack.pop();
-				if (func.name.equals("~")) {
-					Literal ans = Literal.opHandler(b, null, func);
-					ans.printMe();
-					stack.push(ans);
-				} else {
-					Literal a = stack.pop();
-					Literal ans = Literal.opHandler(a, b, func);
-					ans.printMe();
-					stack.push(ans);
-				}
-			} else {
-				for (Literal literal : Ldata) {
-					if (temp.equals(literal.name)) {
-						stack.push(literal);
-						break;
-					}
-				}
-			}
-		}
-		Literal FinalAnswer = stack.pop();
-		System.out.println("\n>>Truth Table Completed");
-		System.out.println("\nCNF : " + CNF(Ldata, FinalAnswer) + "\n");
-		System.out.println("DNF : " + DNF(Ldata, FinalAnswer));
-		System.out.println("\n>>Done!");
+    public static void main(String[] args) {
+        // Use ParsingDnf to get the formula
+        String[] formulas = {
+            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))"
+        };
 
-	}
+		// printing the input formula
+		System.out.println("-----------------------------------------------------------------------------------");
+		System.out.println("Input Formula: " + formulas[0]);
+		System.out.println("-----------------------------------------------------------------------------------");
+
+        // Get the transformed formula from ParsingDnf
+        String transformedFormula = Transformation.Selection.ParsingDnf.processFormulas(formulas);
+
+        // Now use the transformedFormula in the Calculator class
+        System.out.println("Using Formula: " + transformedFormula);
+
+        // Rest of the Calculator logic
+        ArrayList<String> Literals = new ArrayList<>();
+        StringTokenizer mytoken = new StringTokenizer(transformedFormula, " )(<>-~&|");
+        while (mytoken.hasMoreTokens()) {
+            String temp = mytoken.nextToken();
+            if (!Literals.contains(temp)) {
+                Literals.add(temp);
+            }
+        }
+        int[][] literalsTF = new int[(int) Math.pow(2, Literals.size())][Literals.size()];
+        for (int i = 0; i < (int) Math.pow(2, Literals.size()); i++) {
+            String temp = Integer.toBinaryString(i);
+            while (temp.length() < Literals.size())
+                temp = "0" + temp;
+            for (int j = 0; j < Literals.size(); j++) {
+                literalsTF[i][j] = temp.toCharArray()[j] - 48;
+            }
+        }
+
+        ArrayList<Literal> Ldata = new ArrayList<>();
+        for (int i = 0; i < Literals.size(); i++) {
+            int[] tempTF = new int[(int) Math.pow(2, Literals.size())];
+            for (int j = 0; j < (int) Math.pow(2, Literals.size()); j++) {
+                tempTF[j] = literalsTF[j][i];
+            }
+            Ldata.add(new Literal(Literals.get(i), tempTF));
+        }
+        for (Literal literal : Ldata) {
+            literal.printMe();
+        }
+        Stack<Literal> stack = new Stack<>();
+        char[] Cdata = transformedFormula.toCharArray();
+        transformedFormula = transformedFormula.replace("(", " ( ");
+        transformedFormula = transformedFormula.replace(")", " ) ");
+        transformedFormula = transformedFormula.replace("~", " ~ ");
+        transformedFormula = transformedFormula.replace("&", " & ");
+        transformedFormula = transformedFormula.replace("|", " | ");
+        transformedFormula = transformedFormula.replace("<->", " <-> ");
+        transformedFormula = transformedFormula.replace("->", " -> ");
+        mytoken = new StringTokenizer(transformedFormula, " ");
+        while (mytoken.hasMoreTokens()) {
+            String temp = mytoken.nextToken();
+            if (temp.equals("&")) {
+                stack.push(new Literal("&", null));
+            } else if (temp.equals("|")) {
+                stack.push(new Literal("|", null));
+            } else if (temp.equals("->")) {
+                stack.push(new Literal("->", null));
+            } else if (temp.equals("<->")) {
+                stack.push(new Literal("<->", null));
+            } else if (temp.equals("~")) {
+                stack.push(new Literal("~", null));
+
+            } else if (temp.equals(")")) {
+                Literal b = stack.pop();
+                Literal func = stack.pop();
+                if (func.name.equals("~")) {
+                    Literal ans = Literal.opHandler(b, null, func);
+                    ans.printMe();
+                    stack.push(ans);
+                } else {
+                    Literal a = stack.pop();
+                    Literal ans = Literal.opHandler(a, b, func);
+                    ans.printMe();
+                    stack.push(ans);
+                }
+            } else {
+                for (Literal literal : Ldata) {
+                    if (temp.equals(literal.name)) {
+                        stack.push(literal);
+                        break;
+                    }
+                }
+            }
+        }
+        Literal FinalAnswer = stack.pop();
+        System.out.println("\n>>Truth Table Completed");
+        System.out.println("\nCNF : " + CNF(Ldata, FinalAnswer) + "\n");
+        System.out.println("DNF : " + DNF(Ldata, FinalAnswer));
+        System.out.println("\n>>Done!");
+    }
 
 	public static String CNF(ArrayList<Literal> literalData, Literal FinalAnswer) {
 		String result = " ";
