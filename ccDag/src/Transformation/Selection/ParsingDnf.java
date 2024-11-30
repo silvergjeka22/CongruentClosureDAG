@@ -46,80 +46,70 @@ public class ParsingDnf {
     
         return formula;
     }
-    
-    
-    
-    
-    
-    
 
     public static void processFormulas(String[] formulas) {
         for (int i = 0; i < formulas.length; i++) {
             String formula = formulas[i];
-            System.out.println("------------------------------------------------------");
-            System.out.println("Input formula: " + formula);
-    
+            System.out.println("------------------------------------------------------");    
             // Extract and map functions
             Map<String, String> mapping = NestedFunctionExtractor.extractAndMapNestedFunctions(formula);
-    
-            // Print function mappings
-            System.out.println("Function mappings:");
-            for (Map.Entry<String, String> entry : mapping.entrySet()) {
-                System.out.println(entry.getKey() + " = " + entry.getValue());
-            }
-    
-            // Updated formula with mappings applied
+        
+            // Updated formula with function mappings applied
             String updatedFormula = formula;
             for (Map.Entry<String, String> entry : mapping.entrySet()) {
                 updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
             }
-    
+        
             // Find sub-formulas with = or !=
             List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
-            System.out.println("Sub-formulas with = or !=:");
-            for (String subFormula : equalitySubFormulas) {
-                System.out.println(subFormula);
-            }
-    
+        
             // Replace equality sub-formulas with indexed terms (e0, e1, ...)
             Map<String, String> equalityMappings = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
     
-            // Print equality mappings
-            System.out.println("Equality mappings (e terms):");
-            for (Map.Entry<String, String> entry : equalityMappings.entrySet()) {
-                if (!entry.getKey().equals("Updated Formula")) { // Skip the updated formula in the mappings
-                    System.out.println(entry.getKey() + " = " + entry.getValue());
-                }
+            // Print function and equality mappings together
+            System.out.println("Function and Equality Mappings:");
+    
+            // Determine the maximum length for 'f' and 'e' to properly align
+            int maxLengthF = 0;
+            int maxLengthE = 0;
+    
+            // Calculate the longest string lengths for f and e to align them
+            for (int j = 0; j < mapping.size(); j++) {
+                String fKey = "f" + j;
+                String fVal = mapping.get(fKey);
+                String eVal = equalityMappings.get("e" + j);
+                maxLengthF = Math.max(maxLengthF, (fKey + " = " + (fVal != null ? fVal : "")).length());
+                maxLengthE = Math.max(maxLengthE, (eVal != null ? "e" + j + " = " + eVal : "").length());
             }
     
-            // Print the final updated formula after mapping equality sub-formulas
-            System.out.println("Final updated formula: " + equalityMappings.get("Updated Formula"));
+            // Print each mapping with aligned columns and a straight dividing line
+            for (int j = 0; j < Math.max(mapping.size(), equalityMappings.size()); j++) {
+                String fKey = "f" + j;
+                String eKey = "e" + j;
+                String fVal = mapping.get(fKey);
+                String eVal = equalityMappings.get(eKey);
     
+                String fMapping = (fVal != null ? fKey + " = " + fVal : "");
+                String eMapping = (eVal != null ? eKey + " = " + eVal : "");
+    
+                // Format and align f and e mappings with a dividing line
+                System.out.printf("%-" + (maxLengthF + 2) + "s| %-" + (maxLengthE + 2) + "s\n", fMapping, eMapping);
+            }
+    
+            System.out.println("------------------------------------------------------");
             // Apply transformation to respect the specified syntax
             String transformedFormula = transformFormula(equalityMappings.get("Updated Formula"));
-            System.out.println("Transformed formula: " + transformedFormula);
+            System.out.println("Ready For DNF: " + transformedFormula);
             System.out.println("------------------------------------------------------");
         }
     }
     
+    
 
     public static void main(String[] args) {
         String[] formulas = {
-           /*
-            "((~(Fn(a,b))) = (~(Fn(c,d)))) | ((Gn(x,y) != cons(a,b)) & (Fn(z) = select(store(x))))",
-            "((~(select(store(a, b, c)))) = (~(Fn(Gn(x, y), z)))) & ((Fn(p) != cons(q, r)) | (~(cons(a, Fn(b, c)))) = Fn(~(store(x, y)), z)) | (~((select(x) != Fn(a, b))) = (~(Gn(c))))",
-            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
-            "((~(Fn(a,b))) = (~(Fn(c,d)))) | (Gn(x) != select(store(y))) & ((Fn(z) != cons(a,b)) | (Fn(p,q) = store(x)))",
-            "(Fn(x,y) != (~(Fn(a,b) = Fn(c,d)))) & (select(x) = select(y)) | (Fn(p) = cons(q, r))",
-            "((~(Fn(p,q))) != Fn(r)) & (select(a,b) = (~(Fn(x,y)))) | (~(Fn(x) != Fn(y)))",
-            "Fn(a) = select(store(a)) & ((~(Fn(x))) = (~(Gn(y)))) | (Fn(a,b) = cons(x,y))",
-            "Fn(~(Fn(a,b))) = Fn(c,d) | ((~(Fn(e,f))) != cons(a,b)) & ((select(x) != Fn(y,z)) | Fn(p) = store(x))",
-            "((~(Fn(a,b))) = (~(Fn(x,y)))) | (Fn(p,q) != select(store(a,b))) & (Fn(z) != cons(a,b))",
-            "(select(store(x)) = Fn(a,b)) & ((Fn(a) != Fn(b)) | (Gn(a) = cons(b,c)))",
-            */
             "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))"
-             
-    };
+        };
 
         // Process formulas
         processFormulas(formulas);

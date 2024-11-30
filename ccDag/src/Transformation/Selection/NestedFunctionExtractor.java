@@ -6,11 +6,14 @@ import java.util.regex.Pattern;
 
 public class NestedFunctionExtractor {
 
+    // Global maps to store function mappings (f) and equality sub-formula mappings (e)
+    public static Map<String, String> functionMapping = new LinkedHashMap<>();
+    public static Map<String, String> subFormulaMapping = new LinkedHashMap<>();
+
     // Method to extract, map, and replace nested functions
     public static Map<String, String> extractAndMapNestedFunctions(String formula) {
         Stack<Integer> stack = new Stack<>();
         Map<Integer, Integer> matchingParentheses = new HashMap<>();
-        Map<String, String> functionMapping = new LinkedHashMap<>();
 
         // Identify matching parentheses using a stack
         for (int i = 0; i < formula.length(); i++) {
@@ -72,7 +75,7 @@ public class NestedFunctionExtractor {
         for (int[] bounds : topLevelBounds) {
             String fullFunction = formula.substring(bounds[0], bounds[1] + 1);
             String functionVar = "f" + counter++; // Assign variable name
-            functionMapping.put(functionVar, fullFunction);
+            functionMapping.put(functionVar, fullFunction); // Store the mapping globally
 
             // Replace the function in the formula
             int adjustedStart = bounds[0] + offset;
@@ -83,7 +86,7 @@ public class NestedFunctionExtractor {
             offset += functionVar.length() - fullFunction.length();
         }
 
-        System.out.println("Updated formula: " + updatedFormula);
+        System.out.println("Updated formula functions: " + updatedFormula);
         return functionMapping;
     }
 
@@ -111,18 +114,18 @@ public class NestedFunctionExtractor {
     // Method to replace equality sub-formulas with indexed terms (e0, e1, etc.)
     public static Map<String, String> replaceWithIndexedTerms(String formula, List<String> equalitySubFormulas) {
         String updatedFormula = formula;
-        Map<String, String> subFormulaMapping = new LinkedHashMap<>();
         int counter = 0;
     
         // Replace equality sub-formulas with e0, e1, ...
         for (String subFormula : equalitySubFormulas) {
             String indexedTerm = "e" + counter++;
-            subFormulaMapping.put(indexedTerm, subFormula);
+            subFormulaMapping.put(indexedTerm, subFormula); // Store globally
             updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
         }
     
         System.out.println("Updated formula equality/disequality: " + updatedFormula);
         subFormulaMapping.put("Updated Formula", updatedFormula); // Add the updated formula for consistency
+        System.out.println("----------------------------------------");
         return subFormulaMapping;
     }    
 }
