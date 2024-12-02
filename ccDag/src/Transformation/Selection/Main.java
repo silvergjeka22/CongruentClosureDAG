@@ -38,8 +38,10 @@ public class Main {
         String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
         Calculator calculator = new Calculator(formula);
         calculator.calculate();
+
+        String dnf = calculator.getDnfFormula();
+        System.out.println("DNF: " + dnf);
+
     }
-
-
 
 }

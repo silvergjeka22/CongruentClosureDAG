@@ -19,6 +19,9 @@ public class Calculator {
         this.literals = extractLiterals(this.transformedFormula);
     }
 
+
+
+
     // Extract literals from the formula
     private ArrayList<Literal> extractLiterals(String formula) {
         ArrayList<String> literalNames = new ArrayList<>();
@@ -57,6 +60,9 @@ public class Calculator {
         }
         return table;
     }
+
+	// used to get the DNF formula
+	String dnf = "";
 
     // Perform calculation
     public void calculate() {
@@ -105,8 +111,16 @@ public class Calculator {
         Literal finalAnswer = stack.pop();
         System.out.println("\nTruth Table Completed");
         System.out.println("\nCNF: " + CNF(literals, finalAnswer));
+		dnf = DNF(literals, finalAnswer);
         System.out.println("DNF: " + DNF(literals, finalAnswer));
     }
+
+
+    // Get the DNF formula
+	public String getDnfFormula(){
+		return dnf;
+	}
+
 
 	public static String CNF(ArrayList<Literal> literalData, Literal FinalAnswer) {
 		String result = " ";
