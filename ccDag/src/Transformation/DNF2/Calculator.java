@@ -2,21 +2,35 @@ package Transformation.DNF2;
 
 import java.util.*;
 
+import Transformation.Selection.ParserDnf;
+
 public class Calculator {
 
     public static void main(String[] args) {
-        // Use ParsingDnf to get the formula
-        String[] formulas = {
+
+		 // Use ParsingDnf to get the formula
+		 String[] formulas = {
             "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))"
         };
+
+		// lets call the parsingDnf 
+		ParserDnf parser = new ParserDnf(formulas[0]);
+
+		// Process the formula using processFormula to be with f and e
+		String processedFormula = parser.processFormula();
+
+		// Print the direct transformation of the formula to DNF
+		String transformedFormula = ParserDnf.transformFormula(processedFormula);
+		
+
+
+
+       
 
 		// printing the input formula
 		System.out.println("-----------------------------------------------------------------------------------");
 		System.out.println("Input Formula: " + formulas[0]);
 		System.out.println("-----------------------------------------------------------------------------------");
-
-        // Get the transformed formula from ParsingDnf
-        String transformedFormula = Transformation.Selection.ParsingDnf.processFormulas(formulas);
 
         // Now use the transformedFormula in the Calculator class
         System.out.println("Using Formula: " + transformedFormula);
