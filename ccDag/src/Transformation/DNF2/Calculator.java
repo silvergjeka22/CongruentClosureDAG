@@ -113,6 +113,7 @@ public class Calculator {
         System.out.println("\nCNF: " + CNF(literals, finalAnswer));
 		dnf = DNF(literals, finalAnswer);
         System.out.println("DNF: " + DNF(literals, finalAnswer));
+		System.out.println("\n<<DONE>>");
     }
 
 

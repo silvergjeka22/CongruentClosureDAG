@@ -2,6 +2,7 @@ package Transformation.Selection;
 
 import java.util.*;
 import Transformation.DNF2.*;
+import Transformation.Selection.ParserDnf;
 
 public class Main {
 
@@ -35,12 +36,24 @@ public class Main {
 
 
     public static void main(String[] args) {
-        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
+        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
         Calculator calculator = new Calculator(formula);
         calculator.calculate();
 
+        ParserDnf parser = new ParserDnf(formula);
+
+
+        System.out.println("---------------------------------------------- ");
+
+        // DNF
         String dnf = calculator.getDnfFormula();
         System.out.println("DNF: " + dnf);
+
+        System.out.println("---------------------------------------------- ");
+
+        // Mappings
+        Map<String, String> mappings = parser.getMappings();
+        mappings.forEach((key, value) -> System.out.println(key + " -> " + value));
 
     }
 
