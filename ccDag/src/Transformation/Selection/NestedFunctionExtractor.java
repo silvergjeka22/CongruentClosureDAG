@@ -6,11 +6,10 @@ import java.util.regex.Pattern;
 
 public class NestedFunctionExtractor {
 
-    // Global maps to store function mappings (f) and equality sub-formula mappings (e)
     public static Map<String, String> functionMapping = new LinkedHashMap<>();
     public static Map<String, String> subFormulaMapping = new LinkedHashMap<>();
 
-    // Method to extract, map, and replace nested functions
+    // Method to extract and map nested functions
     public static Map<String, String> extractAndMapNestedFunctions(String formula) {
         Stack<Integer> stack = new Stack<>();
         Map<Integer, Integer> matchingParentheses = new HashMap<>();
@@ -86,10 +85,10 @@ public class NestedFunctionExtractor {
             offset += functionVar.length() - fullFunction.length();
         }
 
-        System.out.println("Updated formula functions: " + updatedFormula);
         return functionMapping;
     }
 
+    // Method to find equality sub-formulas
     public static List<String> findEqualitySubFormulas(String formula) {
         List<String> equalitySubFormulas = new ArrayList<>();
     
@@ -123,9 +122,8 @@ public class NestedFunctionExtractor {
             updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
         }
     
-        System.out.println("Updated formula equality/disequality: " + updatedFormula);
         subFormulaMapping.put("Updated Formula", updatedFormula); // Add the updated formula for consistency
-        System.out.println("----------------------------------------");
         return subFormulaMapping;
-    }    
+    }
+
 }
