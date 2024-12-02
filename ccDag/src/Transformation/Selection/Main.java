@@ -1,10 +1,13 @@
 package Transformation.Selection;
 
 import java.util.*;
+import Transformation.DNF2.*;
 
 public class Main {
+
+    /* 
     public static void main(String[] args) {
-        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)) & ((Fn(a) != cons(b,c)) | Fn(f,g) = (~(Fn(d,e))))";
+        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
 
         // Initialize the ParserDnf with the formula
         ParserDnf parser = new ParserDnf(formula);
@@ -18,7 +21,7 @@ public class Main {
         /*  Print the mappings generated
         Map<String, String> mappings = parser.getMappings();
         mappings.forEach((key, value) -> System.out.println(key + " -> " + value));
-        */
+        
 
         // printMappings
         parser.printMappings();
@@ -27,4 +30,16 @@ public class Main {
         System.out.println("Ready to be applyed:  " + transformedFormula);
     
     }
+
+    */
+
+
+    public static void main(String[] args) {
+        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
+        Calculator calculator = new Calculator(formula);
+        calculator.calculate();
+    }
+
+
+
 }
