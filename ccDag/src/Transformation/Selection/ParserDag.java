@@ -4,7 +4,7 @@ import java.util.*;
 import Transformation.DNF2.*;
 import Transformation.Selection.ParserDnf;
 
-public class Main {
+public class ParserDag {
 
     /* 
     public static void main(String[] args) {
@@ -34,7 +34,7 @@ public class Main {
 
     */
 
-
+    
     public static void main(String[] args) {
         String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
         Calculator calculator = new Calculator(formula);
