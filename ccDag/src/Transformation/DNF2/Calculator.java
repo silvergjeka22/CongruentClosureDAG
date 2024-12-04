@@ -110,9 +110,9 @@ public class Calculator {
         }
         Literal finalAnswer = stack.pop();
         System.out.println("\nTruth Table Completed");
-        System.out.println("\nCNF: " + CNF(literals, finalAnswer));
+        // System.out.println("\nCNF: " + CNF(literals, finalAnswer));
 		dnf = DNF(literals, finalAnswer);
-        System.out.println("DNF: " + DNF(literals, finalAnswer));
+        // System.out.println("DNF: " + DNF(literals, finalAnswer));
 		System.out.println("\n<<DONE>>");
     }
 

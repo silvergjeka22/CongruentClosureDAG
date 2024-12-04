@@ -6,14 +6,13 @@ import java.util.regex.Pattern;
 
 public class ParserDnf {
     private String formula;
-    private Map<String, String> functionMapping = new LinkedHashMap<>();
-    private Map<String, String> subFormulaMapping = new LinkedHashMap<>();
 
     // Constructor takes the formula as input
     public ParserDnf(String formula) {
         this.formula = formula;
     }
 
+    // Method to transform the formula structure
     public static String transformFormula(String formula) {
         // Step 1.1: Normalize variables like (eX) to eX
         formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
@@ -57,23 +56,22 @@ public class ParserDnf {
         return formula;
     }
 
-    // Parse and extract functions, then replace them in the formula
+    // Process formula: extract functions and equality sub-formulas
     public String processFormula() {
+        // Extract and map functions
         NestedFunctionExtractor.extractAndMapNestedFunctions(formula);
 
-        // Get function mappings and apply them to the formula
+        // Replace extracted functions in the formula
         String updatedFormula = formula;
         for (Map.Entry<String, String> entry : NestedFunctionExtractor.functionMapping.entrySet()) {
             updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
         }
 
-        // Find equality sub-formulas
+        // Find and replace equality sub-formulas
         List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
+        updatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
 
-        // Replace equality sub-formulas with indexed terms
-        NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
-
-        return NestedFunctionExtractor.subFormulaMapping.get("Updated Formula");
+        return updatedFormula;
     }
 
     // Get all mappings (functions and equality)
@@ -84,7 +82,7 @@ public class ParserDnf {
         return allMappings;
     }
 
-    // Print mappings in the desired format
+    // Print all mappings for debugging or display
     public void printMappings() {
         System.out.println("Function Mappings:   | Equality Mappings:");
         Iterator<Map.Entry<String, String>> functionIterator = NestedFunctionExtractor.functionMapping.entrySet().iterator();
