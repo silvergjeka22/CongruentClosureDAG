@@ -7,38 +7,48 @@ import Transformation.Selection.ParserDnf;
 public class ParserDag {
 
     public static void main(String[] args) {
-        String formula = "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))";
+        // Array of formulas using functions like store, cons, car, cdr, etc.
+        String[] formulas = {
+            "((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g))",
+            "(store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b))",
+            "((~(Fn(x,y))) = (~(Fn(z,w)))) & (store(a,b) != car(cons(c,d)))",
+            "(Fn(p,q) = store(x,y)) | ~(Fn(a,b) != cons(c,d))"
+        };
         
-        // Initialize the Calculator and ParserDnf with the formula
-        Calculator calculator = new Calculator(formula);
-        calculator.calculate();
+        // Loop through each formula, process it and print results
+        for (String formula : formulas) {
+            System.out.println("Processing formula: " + formula);
 
-        ParserDnf parser = new ParserDnf(formula);
+            // Initialize the Calculator and ParserDnf with the formula
+            Calculator calculator = new Calculator(formula);
+            calculator.calculate();
 
-        System.out.println("---------------------------------------------- ");
+            ParserDnf parser = new ParserDnf(formula);
 
-        // Process the formula
+            System.out.println("---------------------------------------------- ");
 
+            // DNF
+            String dnf = calculator.getDnfFormula();
+            System.out.println("DNF: " + dnf);
 
-        // DNF
-        String dnf = calculator.getDnfFormula();
-        System.out.println("DNF: " + dnf);
+            System.out.println("---------------------------------------------- ");
 
-        System.out.println("---------------------------------------------- ");
+            // Mappings
+            Map<String, String> mappings = parser.getMappings();
+            // Print mappings if needed
+            /* 
+            System.out.println("Mappings:");
+            mappings.forEach((key, value) -> System.out.println(key + " -> " + value));
+            */
 
-        
-        Map<String, String> mappings = parser.getMappings();
-        /*  Mappings
-        System.out.println("Mappings:");
-        mappings.forEach((key, value) -> System.out.println(key + " -> " + value));
-        */
+            // Insert the mappings into the DNF formula
+            String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
 
-        // Insert the mappings into the DNF formula
-        String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
-
-        System.out.println("---------------------------------------------- ");
-        System.out.println("Updated DNF with mappings:");
-        System.out.println(updatedDnfFormula);
+            System.out.println("---------------------------------------------- ");
+            System.out.println("Updated DNF with mappings:");
+            System.out.println(updatedDnfFormula);
+            System.out.println("\n");
+        }
     }
 
     // Method to insert mappings containing 'e' and 'f' into the DNF formula
