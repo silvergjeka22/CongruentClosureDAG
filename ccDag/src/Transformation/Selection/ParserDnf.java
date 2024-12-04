@@ -67,7 +67,7 @@ public class ParserDnf {
             updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
         }
 
-        // Find and replace equality sub-formulas
+        // Find and replace equality sub-formulas apply it until it is not anymore = or != in the formula
         List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
         updatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
 
