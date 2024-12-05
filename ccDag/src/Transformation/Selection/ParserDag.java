@@ -13,6 +13,7 @@ public class ParserDag {
                 "(store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b))",
                 "((~(Fn(x,y))) != (~(Fn(z,w)))) & (store(a,b) != car(cons(c,d)))",
                 "(Fn(p,q) = store(x,y)) | ~(Fn(a,b) != cons(c,d))",
+                //"(((Fn(a,b) != Fn(c,d)) & (Fn(e,f) = Fn(g,h))) | ((((~(Fn(i,j) = Fn(k,l))) & (Fn(m,n) != Fn(o,p))) & (store(q,r) = Fn(s,t))) & (Fn(u,v) = cons(w,x))))",
                 //"((Fn(a,b) != Fn(c,d)) & (Fn(e,f) = Fn(g,h)))", TODO: apply a lot of time equality recogniser
         };
 
@@ -49,16 +50,18 @@ public class ParserDag {
             System.out.println("Updated DNF with mappings:");
             System.out.println(updatedDnfFormula);
 
-            // Split the updated DNF formula by the '|' operator
-            String[] splitFormulas = updatedDnfFormula.split("\\|");
+             // Split the updated DNF formula by the '|' operator
+             String[] splitFormulas = updatedDnfFormula.split("\\|");
 
-            // Print each formula part separately
-            System.out.println("Split formulas:");
-            for (String formulaPart : splitFormulas) {
-                System.out.println(formulaPart.trim());
-            }
-            System.out.println("\n");
-        }
+             // Print each formula part separately after replacing 'g' with ';'
+             System.out.println("Split formulas:");
+             for (int j = 0; j < splitFormulas.length; j++) {
+                 String formulaPart = splitFormulas[j].trim();
+                 formulaPart = formulaPart.replace("&", ";"); // Replace 'g' with ';'
+                 System.out.println("Formula " + (j + 1) + ": " + formulaPart);
+             }
+             System.out.println("\n");
+         }
     }
 
     // Method to insert mappings containing 'e' and 'f' into the DNF formula
