@@ -11,11 +11,11 @@ public class ParserDag {
         String[] formulas = {
                 "(((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)))",
                 "(store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b))",
-                "((~(Fn(x,y))) != (~(Fn(z,w)))) & (store(a,b) != car(cons(c,d)))",
+                "((~(Fn(x,y))) != Fn(z,w)) & (store(a,b) != car(cons(c,d)))",
                 "(Fn(p,q) = store(x,y)) | ~(Fn(a,b) != cons(c,d))",
                 "(Fn(p,q) = store(x,y)) | ~(Fn(p,q) = store(x,y))",
 
-                // "((Fn(a,b) != Fn(c,d)) = (Fn(e,f) = Fn(g,h)))", TODO: apply a lot of time equality recogniser
+                 "((Fn(a,b) != Fn(c,d)) = (Fn(e,f) = Fn(g,h)))", //TODO: apply a lot of time equality recogniser
                 // TODO: When the formulas of equality are complex like ((&|)&|) = ((&|)&|), the program does not work
         };
 
