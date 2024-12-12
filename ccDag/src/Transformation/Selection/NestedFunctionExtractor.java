@@ -3,6 +3,7 @@ package Transformation.Selection;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import Transformation.Selection.ParserDnf;
 
 public class NestedFunctionExtractor {
 
@@ -95,4 +96,43 @@ public class NestedFunctionExtractor {
 
         return updatedFormula;
     }
+
+    /* 
+
+    public static String replaceComplexTerms(String formula, List<String> complexTerms) {
+        String updatedFormula = formula;
+        int counter = 0;
+        boolean modified; // Track if changes were made in the loop
+    
+        do {
+            modified = false; // Reset modification flag
+    
+            // Transform the formula and update it
+            String transformedFormula = ParserDnf.transformFormula(updatedFormula);
+            if (!transformedFormula.equals(updatedFormula)) {
+                updatedFormula = transformedFormula;
+                modified = true; // A change was made
+            }
+    
+            // Replace complex terms with indexed terms
+            for (String complexTerm : complexTerms) {
+                if (updatedFormula.contains(complexTerm)) {
+                    String indexedTerm = "c" + counter++;
+                    subFormulaMapping.put(indexedTerm, complexTerm);
+                    updatedFormula = updatedFormula.replace(complexTerm, indexedTerm);
+                    modified = true; // A change was made
+                }
+            }
+    
+            System.out.println("Updated formula: " + updatedFormula);
+    
+        } while (modified && Pattern.compile("\\s*(=|!=)\\s*").matcher(updatedFormula).find());
+    
+        return updatedFormula;
+    }
+
+    */
+    
+    
+
 }

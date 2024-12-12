@@ -21,11 +21,12 @@ public class ParserDnf {
         formula = formula.replaceAll("~(e[0-9]+)(?!\\))", "(~$1)");
 
         // Step 1.3: Wrap the entire formula in parentheses if they don't already exist
-        if (!formula.matches("^\\(.*\\)$")) {
-            formula = "(" + formula + ")";
-        }
+        // if (!formula.matches("^\\(.*\\)$")) {
+        // formula = "(" + formula + ")";
+        // }
 
-        // Step 1.4: Handle negated formulas (~(formula)) properly to avoid over-wrapping
+        // Step 1.4: Handle negated formulas (~(formula)) properly to avoid
+        // over-wrapping
         Pattern negatedFormulaPattern = Pattern.compile("~\\(([^()]+)\\)"); // Match negated formulas
         Matcher matcher = negatedFormulaPattern.matcher(formula);
 
@@ -33,7 +34,7 @@ public class ParserDnf {
         while (matcher.find()) {
             String innerFormula = matcher.group(1); // Extract the inner formula
             // Recursively transform the inner formula
-            String transformedInner = transformFormula(innerFormula);  // Call the method with the formula as argument
+            String transformedInner = transformFormula(innerFormula); // Call the method with the formula as argument
 
             // If the inner formula is already wrapped in parentheses, no need to wrap again
             if (transformedInner.matches("^\\(.*\\)$")) {
@@ -56,20 +57,57 @@ public class ParserDnf {
         return formula;
     }
 
-    // Process formula: extract functions and equality sub-formulas
+    // Enhanced processFormula to fix infinite loops and ensure proper
+    // transformation
     public String processFormula() {
-        // Extract and map functions
+        // Step 1: Extract and map nested functions (Fn(a,b) => f0, etc.)
         NestedFunctionExtractor.extractAndMapNestedFunctions(formula);
+        String updatedFormula = formula;
 
         // Replace extracted functions in the formula
-        String updatedFormula = formula;
         for (Map.Entry<String, String> entry : NestedFunctionExtractor.functionMapping.entrySet()) {
             updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
         }
 
-        // Find and replace equality sub-formulas apply it until it is not anymore = or != in the formula
-        List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
-        updatedFormula = NestedFunctionExtractor.replaceWithIndexedTerms(updatedFormula, equalitySubFormulas);
+        System.out.println("Updated Formula: " + updatedFormula);
+
+        boolean modified;
+        int equalityCounter = 0; // Counter for indexed equality terms
+        //int complexCounter = 0; // Counter for complex indexed terms
+
+        // Step 2: Iteratively process equality sub-formulas and complex terms
+        do {
+            modified = false;
+
+            // 2.1: Replace equality sub-formulas (e.g., e0 = e1)
+            List<String> equalitySubFormulas = NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
+            for (String subFormula : equalitySubFormulas) {
+                String indexedTerm = "e" + equalityCounter++;
+                NestedFunctionExtractor.subFormulaMapping.put(indexedTerm, subFormula);
+                updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
+                modified = true;
+            }
+
+            /*
+             * 2.2: Replace complex terms (e.g., c0 for nested equalities)
+             * List<String> complexTerms =
+             * NestedFunctionExtractor.findEqualitySubFormulas(updatedFormula);
+             * for (String complexTerm : complexTerms) {
+             * String indexedTerm = "c" + complexCounter++;
+             * NestedFunctionExtractor.subFormulaMapping.put(indexedTerm, complexTerm);
+             * updatedFormula = updatedFormula.replace(complexTerm, indexedTerm);
+             * modified = true;
+             * }
+             */
+
+            // 2.3: Transform the formula to normalize it
+            String transformedFormula = ParserDnf.transformFormula(updatedFormula);
+            if (!transformedFormula.equals(updatedFormula)) {
+                updatedFormula = transformedFormula;
+                modified = true;
+            }
+
+        } while (modified && Pattern.compile("\\s*(=|!=)\\s*").matcher(updatedFormula).find());
 
         return updatedFormula;
     }
@@ -85,8 +123,10 @@ public class ParserDnf {
     // Print all mappings for debugging or display
     public void printMappings() {
         System.out.println("Function Mappings:   | Equality Mappings:");
-        Iterator<Map.Entry<String, String>> functionIterator = NestedFunctionExtractor.functionMapping.entrySet().iterator();
-        Iterator<Map.Entry<String, String>> equalityIterator = NestedFunctionExtractor.subFormulaMapping.entrySet().iterator();
+        Iterator<Map.Entry<String, String>> functionIterator = NestedFunctionExtractor.functionMapping.entrySet()
+                .iterator();
+        Iterator<Map.Entry<String, String>> equalityIterator = NestedFunctionExtractor.subFormulaMapping.entrySet()
+                .iterator();
 
         while (functionIterator.hasNext() || equalityIterator.hasNext()) {
             String functionMappingEntry = functionIterator.hasNext() ? formatMapping(functionIterator.next()) : "";
