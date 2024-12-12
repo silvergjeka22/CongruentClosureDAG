@@ -12,13 +12,15 @@ public class ParserDag {
                 //"(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
                 //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
                 //"(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b))",
+                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
                 //"((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
                 //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
                 //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
 
+                "select(store(car(x),cdr(y)),x) = y",
+
                 //"Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
-                " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
+                //" (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
 
 
                 // TODO: When the formulas of equality are complex like ((&|)&|) = ((&|)&|), the program does not work
