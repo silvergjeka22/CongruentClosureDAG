@@ -15,3 +15,5 @@
   - [ ] semplify the paring for dag
   - [ ] passing a loop formula that are devided on file with # to the dag and take the results and check the satisfability
 
+  
+
