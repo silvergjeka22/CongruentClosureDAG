@@ -9,13 +9,13 @@ public class ParserDag {
     public static void main(String[] args) {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
-                //"(((~(Fn(p,q))) = (~(Fn(r,s)))) & ((Fn(a) != cons(b,c)) | (~(Fn(d,e))) = Fn(f,g)))",
-                //"((store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b)))",
-                //"(((~(Fn(x,y))) != Fn(z,w)) & (store(a,b) != car(cons(c,d))))",
-                //"((Fn(p,q) = store(x,y)) | (~(Fn(a,b) != cons(c,d))))",
-                //"((Fn(p,q) = store(x,y)) | (~(Fn(p,q) = store(x,y))))",
+                "((store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b)))",
+                "(((~(Fn(x,y))) != Fn(z,w)) & (store(a,b) != car(cons(c,d))))",
+                "((Fn(p,q) = store(x,y)) | (~(Fn(a,b) != cons(c,d))))",
+                "((Fn(p,q) = store(x,y)) | (~(Fn(p,q) = store(x,y))))",
 
-                "(((Fn(a,b) = Fn(c,d)) = (Fn(e,f) = Fn(g,h)) = (car(a) = select(b, Fn(c,d))) = ((~(Fn(i,j))) = Fn(k,l)) = (select(m,n) = car(o,p)) = ((~(select(q,r))) = Fn(s,t))",
+                "(((Fn(p,q) = store(x,y)) = (~(Fn(a,b) != cons(c,d))) | ((Fn(p,q) = store(x,y)) & ((Fn(p,q) = store(x,y)) = (~(Fn(a,b) != cons(c,d)))))",
+
 
                 // TODO: When the formulas of equality are complex like ((&|)&|) = ((&|)&|), the program does not work
         };
