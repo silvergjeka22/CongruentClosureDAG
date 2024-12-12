@@ -9,21 +9,21 @@ public class ParserDag {
     public static void main(String[] args) {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
-                "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
+                //"(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
+                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
                 "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
+                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
-                "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+                //"((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
-                "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
-                "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
-                "select(store(car(x),cdr(y)),x) = y",
+                //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
+                //"select(store(car(x),cdr(y)),x) = y",
 
-                "Fn(p, Hn(p, Dn(q,s)))",
+                //"Fn(p, Hn(p, Dn(q,s)))",
 
-                "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
-                " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
+                //"Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
+                //" (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
         };
 
         // Loop through each formula, process it and print results
@@ -82,21 +82,21 @@ public class ParserDag {
     public static String insertMappingsIntoDnf(String dnfFormula, Map<String, String> mappings) {
         String updatedFormula = dnfFormula;
         boolean modified;
-
+    
         // Process 'e' mappings first, iteratively
         do {
             modified = false; // Reset modification flag
             for (Map.Entry<String, String> entry : mappings.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-
+    
                 // Only process mappings with 'e'
                 if (key.startsWith("e")) {
                     // Ensure value is enclosed in parentheses
                     if (!value.startsWith("(")) {
                         value = "(" + value + ")";
                     }
-
+    
                     // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + key + "\\b";
                     if (updatedFormula.matches(".*" + regexKey + ".*")) {
@@ -106,21 +106,33 @@ public class ParserDag {
                 }
             }
         } while (modified); // Repeat until no more replacements for 'e'
-
-        // Process 'f' mappings
-        for (Map.Entry<String, String> entry : mappings.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-
-            // Only process mappings with 'f'
-            if (key.startsWith("f")) {
-                // Use regex with word boundaries to replace only exact matches
-                String regexKey = "\\b" + key + "\\b";
-                updatedFormula = updatedFormula.replaceAll(regexKey, value);
+    
+        // Process 'f' mappings iteratively to fully expand all nested mappings
+        do {
+            modified = false; // Reset modification flag
+            for (Map.Entry<String, String> entry : mappings.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+    
+                // Only process mappings with 'f'
+                if (key.startsWith("f")) {
+                    // Ensure value is enclosed in parentheses
+                    if (!value.startsWith("(")) {
+                        value = "(" + value + ")";
+                    }
+    
+                    // Use regex with word boundaries to replace only exact matches
+                    String regexKey = "\\b" + key + "\\b";
+                    if (updatedFormula.matches(".*" + regexKey + ".*")) {
+                        updatedFormula = updatedFormula.replaceAll(regexKey, value);
+                        modified = true; // Mark as modified for further iterations
+                    }
+                }
             }
-        }
-
+        } while (modified); // Repeat until no more replacements for 'f'
+    
         return updatedFormula;
     }
+    
 
 }
