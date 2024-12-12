@@ -9,19 +9,27 @@ public class ParserDag {
     public static void main(String[] args) {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
-                "((store(x,y) = cons(a,b)) & (car(cons(d,e)) = cdr(cons(a,b)))",
-                "(((~(Fn(x,y))) != Fn(z,w)) & (store(a,b) != car(cons(c,d))))",
-                "((Fn(p,q) = store(x,y)) | (~(Fn(a,b) != cons(c,d))))",
-                "((Fn(p,q) = store(x,y)) | (~(Fn(p,q) = store(x,y))))",
+                //"(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
+                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
+                //"(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
+                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b))",
+                //"((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+                //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
 
-                "(((Fn(p,q) = store(x,y)) = (~(Fn(a,b) != cons(c,d))) | ((Fn(p,q) = store(x,y)) & ((Fn(p,q) = store(x,y)) = (~(Fn(a,b) != cons(c,d)))))",
+                //"Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
+                " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
 
 
                 // TODO: When the formulas of equality are complex like ((&|)&|) = ((&|)&|), the program does not work
         };
 
         // Loop through each formula, process it and print results
+        int count = 0;
         for (String formula : formulas) {
+            System.out.println("---------------###  "+ "Formula: " + count +   "  ###----------------------- ");
+            System.out.println("\n");
+            count++;
             System.out.println("Processing formula: " + formula);
 
             // Initialize the Calculator and ParserDnf with the formula
@@ -104,9 +112,9 @@ public class ParserDag {
             // Only process mappings with 'f'
             if (key.startsWith("f")) {
                 // Ensure value is enclosed in parentheses
-                if (!value.startsWith("(")) {
-                    value = "(" + value + ")";
-                }
+                //if (!value.startsWith("(")) {
+                //    value = "(" + value + ")";
+                //}
     
                 // Replace the key with its mapped value
                 updatedFormula = updatedFormula.replace(key, value);

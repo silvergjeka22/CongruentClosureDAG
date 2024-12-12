@@ -72,8 +72,8 @@ public class NestedFunctionExtractor {
      */
     public static List<String> findEqualitySubFormulas(String formula) {
         List<String> equalitySubFormulas = new ArrayList<>();
-        String equalityPattern = "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*\\(~?\\([^()]*\\)\\)|" +
-                "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*[A-Za-z0-9_]+|" +
+        String equalityPattern = "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*\\(~?\\([^()]*\\)\\)|" +  // 
+                "\\(~?\\([^()]*\\)\\)\\s*(=|!=)\\s*[A-Za-z0-9_]+|" +  
                 "[A-Za-z0-9_]+\\s*(=|!=)\\s*\\(~?\\([^()]*\\)\\)|" +
                 "\\b([A-Za-z0-9_~(]+)\\s*(=|!=)\\s*([A-Za-z0-9_~(]+)\\b";
 

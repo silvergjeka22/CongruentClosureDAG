@@ -19,24 +19,8 @@ public class ParserDnf {
      * @return Transformed formula
      */
     public static String transformFormula(String formula) {
-        formula = formula.replaceAll("\\((e[0-9]+)\\)", "$1");
-        formula = formula.replaceAll("~(e[0-9]+)(?!\\))", "(~$1)");
 
-        Pattern negatedFormulaPattern = Pattern.compile("~\\(([^()]+)\\)");
-        Matcher matcher = negatedFormulaPattern.matcher(formula);
 
-        StringBuffer sb = new StringBuffer();
-        while (matcher.find()) {
-            String innerFormula = matcher.group(1);
-            String transformedInner = transformFormula(innerFormula);
-            matcher.appendReplacement(sb, Matcher.quoteReplacement("(~" + transformedInner + ")"));
-        }
-        matcher.appendTail(sb);
-        formula = sb.toString();
-
-        formula = formula.replaceAll("\\(\\(~\\(([^()]+)\\)\\)\\)", "(~($1))");
-        formula = formula.replaceAll("\\((e[0-9]+)\\) \\& \\((e[0-9]+)\\)", "$1 & $2");
-        formula = formula.replaceAll("\\((e[0-9]+)\\) \\| \\((e[0-9]+)\\)", "$1 | $2");
 
         return formula;
     }
@@ -69,12 +53,17 @@ public class ParserDnf {
                 updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
                 modified = true;
             }
+            System.out.println("Updated Formula: " + updatedFormula);
 
             String transformedFormula = ParserDnf.transformFormula(updatedFormula);
+
+            System.out.println("Transformed Formula: " + transformedFormula);
+
             if (!transformedFormula.equals(updatedFormula)) {
                 updatedFormula = transformedFormula;
                 modified = true;
             }
+            System.out.println("Updated Formula: " + updatedFormula);
         } while (modified && Pattern.compile("\\s*(=|!=)\\s*").matcher(updatedFormula).find());
 
         return updatedFormula;
