@@ -17,7 +17,9 @@ public class ParserDag {
                 //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
                 //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
 
-                "select(store(car(x),cdr(y)),x) = y",
+                //"select(store(car(x),cdr(y)),x) = y",
+
+                "Fn(p, Hn(p, Dn(q,s)))"
 
                 //"Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
                 //" (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
