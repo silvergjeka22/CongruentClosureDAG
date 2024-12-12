@@ -10,11 +10,11 @@ public class ParserDag {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
                 "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
-                "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
+                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
+                //"(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
+                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
-                "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+                //"((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
                 //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
                 //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
@@ -60,6 +60,9 @@ public class ParserDag {
 
             // Call the split and print function
             splitAndPrintUpdatedDnf(updatedDnfFormula);
+
+            // Apply De Morgan's laws and parse negations
+            applyDeMorganAndParse(updatedDnfFormula);
         }
     }
 
@@ -104,6 +107,7 @@ public class ParserDag {
                     if (!value.startsWith("(")) {
                         value = "(" + value + ")";
                     }
+
                     // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + key + "\\b";
                     if (updatedFormula.matches(".*" + regexKey + ".*")) {
@@ -123,6 +127,11 @@ public class ParserDag {
 
                 // Only process mappings with 'f'
                 if (key.startsWith("f")) {
+                    // Ensure value is enclosed in parentheses
+                    if (!value.startsWith("(")) {
+                        value = "(" + value + ")";
+                    }
+
                     // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + key + "\\b";
                     if (updatedFormula.matches(".*" + regexKey + ".*")) {
@@ -134,5 +143,28 @@ public class ParserDag {
         } while (modified); // Repeat until no more replacements for 'f'
 
         return updatedFormula;
+    }
+
+    /**
+     * Applies De Morgan's laws and parses negations in the formula.
+     * @param formula The formula to transform.
+     */
+    public static void applyDeMorganAndParse(String formula) {
+        System.out.println("Applying De Morgan's laws and parsing negations...");
+
+        // Replace double negations
+        formula = formula.replaceAll("~\\(~(.*?)\\)", "$1");
+
+        // Replace negations of equalities
+        formula = formula.replaceAll("~\\((.*?)=(.*?)\\)", "-$1!=$2");
+
+        // Replace other negations
+        formula = formula.replaceAll("~", "-");
+
+        // TODO: Parsig to take off some () and make it more readable
+
+        // Print the transformed formula
+        System.out.println("Transformed formula: " + formula);
+        System.out.println("\n");
     }
 }
