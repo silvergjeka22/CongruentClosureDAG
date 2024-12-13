@@ -6,24 +6,28 @@ import Transformation.Selection.ParserDnf;
 
 public class ParserDag {
 
+    // Global array to store split formulas
+    private static String[] splitFormulas;
+
     public static void main(String[] args) {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
                 "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a))  | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
-                //"(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                //"(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
+                // "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) &
+                // cdr(a) = cdr(a))))",
+                // "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
+                // "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
-                //"((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+                // "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
-                //"(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
-                //"(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
-                //"select(store(car(x),cdr(y)),x) = y",
+                // "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
+                // "select(store(car(x),cdr(y)),x) = y",
 
-                //"Fn(p, Hn(p, Dn(q,s)))",
+                // "Fn(p, Hn(p, Dn(q,s)))",
 
-                //"Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
-                //" (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
+                // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
+                // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
         };
 
         // Loop through each formula, process it and print results
@@ -57,22 +61,28 @@ public class ParserDag {
             String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
 
             System.out.println("---------------------------------------------- ");
-
+            System.out.println("Updated DNF formula: " + updatedDnfFormula);
+            System.out.println("---------------------------------------------- ");
             // Call the split and print function
-            splitAndPrintUpdatedDnf(updatedDnfFormula);
-
+            splitAndSetUpdatedDnf(updatedDnfFormula);
+            System.out.println("---------------------------------------------- ");
+            System.out.println("Applying De Morgan's laws and parsing negations...");
             // Apply De Morgan's laws and parse negations
-            applyDeMorganAndParse(updatedDnfFormula);
+            String[] transformedFormulas = applyDeMorganAndParse(splitFormulas);
+            for (String transformedFormula : transformedFormulas) {
+                System.out.println("Transformed formula: " + transformedFormula);
+            }
         }
     }
 
     /**
-     * Splits the updated DNF formula by the '|' operator and prints each part.
-     * @param updatedDnfFormula The formula to split and print.
+     * Splits the updated DNF formula by the '|' operator and sets the global array.
+     * 
+     * @param updatedDnfFormula The formula to split and set.
      */
-    public static void splitAndPrintUpdatedDnf(String updatedDnfFormula) {
+    public static void splitAndSetUpdatedDnf(String updatedDnfFormula) {
         // Split the updated DNF formula by the '|' operator
-        String[] splitFormulas = updatedDnfFormula.split("\\|");
+        splitFormulas = updatedDnfFormula.split("\\|");
 
         // Print each formula part separately after replacing '&' with ';'
         System.out.println("Split formulas:");
@@ -86,8 +96,9 @@ public class ParserDag {
 
     /**
      * Inserts mappings into the DNF formula.
+     * 
      * @param dnfFormula The original DNF formula.
-     * @param mappings The mappings to insert.
+     * @param mappings   The mappings to insert.
      * @return The updated formula.
      */
     public static String insertMappingsIntoDnf(String dnfFormula, Map<String, String> mappings) {
@@ -128,9 +139,9 @@ public class ParserDag {
                 // Only process mappings with 'f'
                 if (key.startsWith("f")) {
                     // Ensure value is enclosed in parentheses
-                    if (!value.startsWith("(")) {
-                        value = "(" + value + ")";
-                    }
+                    // if (!value.startsWith("(")) {
+                    // value = "(" + value + ")";
+                    // }
 
                     // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + key + "\\b";
@@ -146,25 +157,30 @@ public class ParserDag {
     }
 
     /**
-     * Applies De Morgan's laws and parses negations in the formula.
-     * @param formula The formula to transform.
+     * Applies De Morgan's laws and parses negations in the formulas.
+     * 
+     * @param formulas The array of formulas to transform.
+     * @return The array of transformed formulas.
      */
-    public static void applyDeMorganAndParse(String formula) {
-        System.out.println("Applying De Morgan's laws and parsing negations...");
+    public static String[] applyDeMorganAndParse(String[] formulas) {
+        String[] transformedFormulas = new String[formulas.length];
+        for (int i = 0; i < formulas.length; i++) {
+            String formula = formulas[i];
 
-        // Replace double negations
-        formula = formula.replaceAll("~\\(~(.*?)\\)", "$1");
+            // Replace double negations
+            formula = formula.replaceAll("~\\(~(.*?)\\)", "$1");
 
-        // Replace negations of equalities
-        formula = formula.replaceAll("~\\((.*?)=(.*?)\\)", "-$1!=$2");
+            // Replace negations of equalities
+            formula = formula.replaceAll("~\\((.*?)=(.*?)\\)", "-$1!=$2");
 
-        // Replace other negations
-        formula = formula.replaceAll("~", "-");
+            // Replace other negations
+            formula = formula.replaceAll("~", "-");
 
-        // TODO: Parsig to take off some () and make it more readable
+            // TODO: Parsing to take off some () and make it more readable
 
-        // Print the transformed formula
-        System.out.println("Transformed formula: " + formula);
-        System.out.println("\n");
+            // Store the transformed formula
+            transformedFormulas[i] = formula;
+        }
+        return transformedFormulas;
     }
 }
