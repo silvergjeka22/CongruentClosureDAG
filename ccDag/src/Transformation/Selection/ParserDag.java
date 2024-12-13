@@ -64,34 +64,42 @@ public class ParserDag {
             System.out.println("Updated DNF formula: " + updatedDnfFormula);
             System.out.println("---------------------------------------------- ");
             // Call the split and print function
-            splitAndSetUpdatedDnf(updatedDnfFormula);
+            splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
+            for (String splitFormula : splitFormulas) {
+                System.out.println(splitFormula);
+            }
             System.out.println("---------------------------------------------- ");
             System.out.println("Applying De Morgan's laws and parsing negations...");
             // Apply De Morgan's laws and parse negations
             String[] transformedFormulas = applyDeMorganAndParse(splitFormulas);
             for (String transformedFormula : transformedFormulas) {
-                System.out.println("Transformed formula: " + transformedFormula);
+                System.out.println(transformedFormula);
             }
         }
     }
 
     /**
-     * Splits the updated DNF formula by the '|' operator and sets the global array.
+     * Splits the updated DNF formula by the '|' operator and returns an array of
+     * formatted strings.
      * 
-     * @param updatedDnfFormula The formula to split and set.
+     * @param updatedDnfFormula The formula to split and format.
+     * @return An array of formatted formula parts.
      */
-    public static void splitAndSetUpdatedDnf(String updatedDnfFormula) {
+    public static String[] splitAndSetUpdatedDnf(String updatedDnfFormula) {
         // Split the updated DNF formula by the '|' operator
-        splitFormulas = updatedDnfFormula.split("\\|");
+        String[] splitFormulas = updatedDnfFormula.split("\\|");
 
-        // Print each formula part separately after replacing '&' with ';'
-        System.out.println("Split formulas:");
+        // Create a new array to store the formatted formula parts
+        String[] formattedFormulas = new String[splitFormulas.length];
+
+        // Format each formula part separately after replacing '&' with ';'
         for (int j = 0; j < splitFormulas.length; j++) {
             String formulaPart = splitFormulas[j].trim();
             formulaPart = formulaPart.replace("&", ";"); // Replace '&' with ';'
-            System.out.println("Formula " + (j + 1) + ": " + formulaPart);
+            formattedFormulas[j] = formulaPart;
         }
-        System.out.println("\n");
+
+        return formattedFormulas;
     }
 
     /**
@@ -138,11 +146,6 @@ public class ParserDag {
 
                 // Only process mappings with 'f'
                 if (key.startsWith("f")) {
-                    // Ensure value is enclosed in parentheses
-                    // if (!value.startsWith("(")) {
-                    // value = "(" + value + ")";
-                    // }
-
                     // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + key + "\\b";
                     if (updatedFormula.matches(".*" + regexKey + ".*")) {
@@ -167,16 +170,25 @@ public class ParserDag {
         for (int i = 0; i < formulas.length; i++) {
             String formula = formulas[i];
 
-            // Replace double negations
+            // Apply double negation elimination: ~(~A) -> A
             formula = formula.replaceAll("~\\(~(.*?)\\)", "$1");
 
-            // Replace negations of equalities
-            formula = formula.replaceAll("~\\((.*?)=(.*?)\\)", "-$1!=$2");
+            // Apply De Morgan's laws for conjunctions: ~(A & B) -> (~A | ~B)
+            formula = formula.replaceAll("~\\((.*?)\\s*&\\s*(.*?)\\)", "(~$1 | ~$2)");
 
-            // Replace other negations
+            // Apply De Morgan's laws for disjunctions: ~(A | B) -> (~A & ~B)
+            formula = formula.replaceAll("~\\((.*?)\\s*\\|\\s*(.*?)\\)", "(~$1 & ~$2)");
+
+            // Negation of equalities: ~(A = B) -> A != B
+            formula = formula.replaceAll("~\\((.*?)\\s*=\\s*(.*?)\\)", "$1 != $2");
+
+            // Negation of inequalities: ~(A != B) -> A = B
+            formula = formula.replaceAll("~\\((.*?)\\s*!=\\s*(.*?)\\)", "$1 = $2");
+
+            // Replace all remaining standalone negations (~) with a logical NOT symbol (-)
             formula = formula.replaceAll("~", "-");
 
-            // TODO: Parsing to take off some () and make it more readable
+            // Add any additional parsing rules for better readability if needed
 
             // Store the transformed formula
             transformedFormulas[i] = formula;
