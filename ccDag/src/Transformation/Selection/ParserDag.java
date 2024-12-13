@@ -123,8 +123,9 @@ public class ParserDag {
                 // Only process mappings with 'e'
                 if (key.startsWith("e")) {
                     // Ensure value is enclosed in parentheses
-                    if (!value.startsWith("(")) {
+                    if (!value.startsWith("(" + key) && !value.endsWith(key + ")")) {
                         value = "(" + value + ")";
+                        System.out.println("Value: " + value);
                     }
 
                     // Use regex with word boundaries to replace only exact matches
