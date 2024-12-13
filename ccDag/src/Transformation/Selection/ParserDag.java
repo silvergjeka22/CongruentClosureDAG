@@ -227,9 +227,30 @@ public class ParserDag {
             }
             System.out.println("Updated Formula: " + formula);
 
+            // take off the doble aparethesis like ((sn = sn)) and make it (sn = sn)
+            String doubleParenthesesPattern = "\\(\\(([^()]+)\\)\\)";
+            Pattern doubleParentheses = Pattern.compile(doubleParenthesesPattern);
+            Matcher doubleParenthesesMatcher = doubleParentheses.matcher(formula);
+            while (doubleParenthesesMatcher.find()) {
+                String inner = doubleParenthesesMatcher.group(1).trim();
+                formula = formula.replace(doubleParenthesesMatcher.group(), "(" + inner + ")");
+            }
+            System.out.println("Updated Formula no (()): " + formula);
+
+            // take off () if is written like (~(sn = sn)) and make ~(sn = sn)
+            String negationParenthesesPattern = "\\(~\\(([^()]+)\\)\\)";
+            Pattern negationParentheses = Pattern.compile(negationParenthesesPattern);
+            Matcher negationParenthesesMatcher = negationParentheses.matcher(formula);
+            while (negationParenthesesMatcher.find()) {
+                String inner = negationParenthesesMatcher.group(1).trim();
+                formula = formula.replace(negationParenthesesMatcher.group(), "~(" + inner + ")");
+            }
+            System.out.println("Updated Formula no (~()): " + formula);
             // Apply De Morgan's laws
             formula = applyDeMorgan(formula);
             System.out.println("Formula after applying De Morgan's laws: " + formula);
+
+            // check if there are double () like ((sn = sn)) and make it (sn = sn)
 
             // take off all the ()
             formula = formula.replaceAll("[()]", "");
@@ -341,6 +362,19 @@ public class ParserDag {
                 formula = formula.replace(negEqualityMatcher.group(), replacement);
                 modified = true;
                 negEqualityMatcher = negEquality.matcher(formula);
+            }
+
+            // Apply negation of inequality
+            String negInequalityPattern = "~\\(([^()]+) != ([^()]+)\\)";
+            Pattern negInequality = Pattern.compile(negInequalityPattern);
+            Matcher negInequalityMatcher = negInequality.matcher(formula);
+            while (negInequalityMatcher.find()) {
+                String left = negInequalityMatcher.group(1).trim();
+                String right = negInequalityMatcher.group(2).trim();
+                String replacement = left + " = " + right;
+                formula = formula.replace(negInequalityMatcher.group(), replacement);
+                modified = true;
+                negInequalityMatcher = negInequality.matcher(formula);
             }
 
         } while (modified);
