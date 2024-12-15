@@ -32,12 +32,15 @@ public class ParserDag {
                 // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
                 // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) ",
 
-                "  ~( (~(Fn(a,b))) != (~(cons(c,d))) )  ", // wrong
-                "~( (~(Fn(a,b))) = (~(cons(c,d))) )", // wrong
-                "~( Fn(a,b) = (~(cons(c,d))) )", // correct
-                "~( (~(Fn(a,b))) = cons(c,d) )", // wrong
-                "~( Fn(a,b) != (~(cons(c,d))) )", // correct
-                "~( (~(Fn(a,b))) != cons(c,d) )", // wrong
+                //"  ~( (~(Fn(a,b))) != (~(cons(c,d))) )  ", 
+                //"~( (~(Fn(a,b))) = (~(cons(c,d))) )", 
+                //"~( Fn(a,b) = (~(cons(c,d))) )", 
+                //"~( (~(Fn(a,b))) = cons(c,d) )", 
+                //"~( Fn(a,b) != (~(cons(c,d))) )", 
+                //"~( (~(Fn(a,b))) != cons(c,d) )", 
+                //"~( (~(~(Fn(a,b))) != (~(cons(cdr(c),d))) )", TODO: fix this before makinf the calclator transformation if there are 2 negations in updated formuala it have to take off it
+
+                "~( ( ~ (~(Fn(a,b))) = (~(cons(c,d)))  ) | (Fn(a,b) != (~(cons(c,d))) != Fn(a,b) = (~(cons(Fn(x,y),cdr(Fn(d)))))) )"
 
         };
 
@@ -63,7 +66,7 @@ public class ParserDag {
 
             System.out.println("---------------------------------------------- ");
 
-            // parser.printMappings();
+             parser.printMappings();
 
             // Mappings
             Map<String, String> mappings = parser.getMappings();
@@ -326,6 +329,8 @@ public class ParserDag {
             }
 
             */
+
+            // TODO: make the de morgan for the functuon nefations like ~((a=b) = ~(c=d))
 
             // Negation of inequality: ~(s0 != s1) -> s0 = s1
             String negInequalityPattern = "~\\(([^()]+) != ([^()]+)\\)";
