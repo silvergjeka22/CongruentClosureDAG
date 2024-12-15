@@ -15,21 +15,30 @@ public class ParserDag {
     public static void main(String[] args) {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
-                "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
-                "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
+                // "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
+                // "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) &
+                // cdr(a) = cdr(a))))",
+                // "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
+                // "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
-                "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+                // "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
-                "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
-                "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
-                "select(store(car(x),cdr(y)),x) = y",
+                // "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
+                // "select(store(car(x),cdr(y)),x) = y",
 
-                "Fn(p, Hn(p, Dn(q,s)))",
+                // "Fn(p, Hn(p, Dn(q,s)))",
 
-                "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
-                " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) "
+                // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
+                // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) ",
+
+                "  ~( (~(Fn(a,b))) != (~(cons(c,d))) )  ", // wrong
+                "~( (~(Fn(a,b))) = (~(cons(c,d))) )", // wrong
+                "~( Fn(a,b) = (~(cons(c,d))) )", // correct
+                "~( (~(Fn(a,b))) = cons(c,d) )", // wrong
+                "~( Fn(a,b) != (~(cons(c,d))) )", // correct
+                "~( (~(Fn(a,b))) != cons(c,d) )", // wrong
+
         };
 
         // Loop through each formula, process it and print results
@@ -54,7 +63,7 @@ public class ParserDag {
 
             System.out.println("---------------------------------------------- ");
 
-            parser.printMappings();
+            // parser.printMappings();
 
             // Mappings
             Map<String, String> mappings = parser.getMappings();
@@ -129,7 +138,7 @@ public class ParserDag {
                     // Ensure value is enclosed in parentheses
                     if (!value.startsWith("(" + key) && !value.endsWith(key + ")")) {
                         value = "(" + value + ")";
-                        System.out.println("Value: " + value);
+                        // System.out.println("Value: " + value);
                     }
 
                     // Use regex with word boundaries to replace only exact matches
@@ -235,7 +244,7 @@ public class ParserDag {
                 String inner = doubleParenthesesMatcher.group(1).trim();
                 formula = formula.replace(doubleParenthesesMatcher.group(), "(" + inner + ")");
             }
-            System.out.println("Updated Formula no (()): " + formula);
+            // System.out.println("Updated Formula no (()): " + formula);
 
             // take off () if is written like (~(sn = sn)) and make ~(sn = sn)
             String negationParenthesesPattern = "\\(~\\(([^()]+)\\)\\)";
@@ -277,16 +286,15 @@ public class ParserDag {
 
             System.out.println("Final Formula: " + formula);
 
-            // clean the  splitFormulas array
+            // clean the splitFormulas array
             for (int i = 0; i < splitFormulas.length; i++) {
                 splitFormulas[i] = "";
             }
 
-
             // isert all the formla into the splitFormulas array based on formula
 
             for (int i = 0; i < splitFormulas.length; i++) {
-                    splitFormulas[i] = formula;
+                splitFormulas[i] = formula;
             }
 
             System.out.println("#################################################################");
@@ -297,50 +305,16 @@ public class ParserDag {
 
             System.out.println("#################################################################");
 
-
         }
         return formulas;
     }
 
-    /**
-     * Applies De Morgan's laws to a given formula.
-     *
-     * @param formula The formula to transform.
-     * @return The transformed formula.
-     */
     public static String applyDeMorgan(String formula) {
-        // Apply De Morgan's laws iteratively until no more changes are made
         boolean modified;
         do {
             modified = false;
 
-            // Apply De Morgan's laws for negation of conjunctions
-            String negConjunctionPattern = "~\\(([^()]+) & ([^()]+)\\)";
-            Pattern negConjunction = Pattern.compile(negConjunctionPattern);
-            Matcher negConjunctionMatcher = negConjunction.matcher(formula);
-            while (negConjunctionMatcher.find()) {
-                String left = negConjunctionMatcher.group(1).trim();
-                String right = negConjunctionMatcher.group(2).trim();
-                String replacement = "(~" + left + " | ~" + right + ")";
-                formula = formula.replace(negConjunctionMatcher.group(), replacement);
-                modified = true;
-                negConjunctionMatcher = negConjunction.matcher(formula);
-            }
-
-            // Apply De Morgan's laws for negation of disjunctions
-            String negDisjunctionPattern = "~\\(([^()]+) \\| ([^()]+)\\)";
-            Pattern negDisjunction = Pattern.compile(negDisjunctionPattern);
-            Matcher negDisjunctionMatcher = negDisjunction.matcher(formula);
-            while (negDisjunctionMatcher.find()) {
-                String left = negDisjunctionMatcher.group(1).trim();
-                String right = negDisjunctionMatcher.group(2).trim();
-                String replacement = "(~" + left + " & ~" + right + ")";
-                formula = formula.replace(negDisjunctionMatcher.group(), replacement);
-                modified = true;
-                negDisjunctionMatcher = negDisjunction.matcher(formula);
-            }
-
-            // Apply double negation elimination
+            /*  Double negation: ~(~X) -> X
             String doubleNegationPattern = "~\\(~([^()]+)\\)";
             Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
             Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
@@ -348,23 +322,12 @@ public class ParserDag {
                 String inner = doubleNegationMatcher.group(1).trim();
                 formula = formula.replace(doubleNegationMatcher.group(), inner);
                 modified = true;
-                doubleNegationMatcher = doubleNegation.matcher(formula);
+                break;
             }
 
-            // Apply negation of equality
-            String negEqualityPattern = "~\\(([^()]+) = ([^()]+)\\)";
-            Pattern negEquality = Pattern.compile(negEqualityPattern);
-            Matcher negEqualityMatcher = negEquality.matcher(formula);
-            while (negEqualityMatcher.find()) {
-                String left = negEqualityMatcher.group(1).trim();
-                String right = negEqualityMatcher.group(2).trim();
-                String replacement = left + " != " + right;
-                formula = formula.replace(negEqualityMatcher.group(), replacement);
-                modified = true;
-                negEqualityMatcher = negEquality.matcher(formula);
-            }
+            */
 
-            // Apply negation of inequality
+            // Negation of inequality: ~(s0 != s1) -> s0 = s1
             String negInequalityPattern = "~\\(([^()]+) != ([^()]+)\\)";
             Pattern negInequality = Pattern.compile(negInequalityPattern);
             Matcher negInequalityMatcher = negInequality.matcher(formula);
@@ -374,8 +337,62 @@ public class ParserDag {
                 String replacement = left + " = " + right;
                 formula = formula.replace(negInequalityMatcher.group(), replacement);
                 modified = true;
-                negInequalityMatcher = negInequality.matcher(formula);
+                break;
             }
+
+            // Negation of equality: ~(s0 = s1) -> s0 != s1
+            String negEqualityPattern = "~\\(([^()]+) = ([^()]+)\\)";
+            Pattern negEquality = Pattern.compile(negEqualityPattern);
+            Matcher negEqualityMatcher = negEquality.matcher(formula);
+            while (negEqualityMatcher.find()) {
+                String left = negEqualityMatcher.group(1).trim();
+                String right = negEqualityMatcher.group(2).trim();
+                String replacement = left + " != " + right;
+                formula = formula.replace(negEqualityMatcher.group(), replacement);
+                modified = true;
+                break;
+            }
+
+            // Negation of inequality with negated terms: ~(~s0 != s1) -> ~s0 = s1
+            String negInequalityNegatedPattern = "~\\(\\(~([^()]+)\\) != ([^()]+)\\)";
+            Pattern negInequalityNegated = Pattern.compile(negInequalityNegatedPattern);
+            Matcher negInequalityNegatedMatcher = negInequalityNegated.matcher(formula);
+            while (negInequalityNegatedMatcher.find()) {
+                String left = negInequalityNegatedMatcher.group(1).trim();
+                String right = negInequalityNegatedMatcher.group(2).trim();
+                String replacement = "~" + left + " = " + right;
+                formula = formula.replace(negInequalityNegatedMatcher.group(), replacement);
+                modified = true;
+                break;
+            }
+
+            // Negation of equality with negated terms: ~(~s0 = s1) -> ~s0 != s1
+            String negEqualityNegatedPattern = "~\\(\\(~([^()]+)\\) = ([^()]+)\\)";
+            Pattern negEqualityNegated = Pattern.compile(negEqualityNegatedPattern);
+            Matcher negEqualityNegatedMatcher = negEqualityNegated.matcher(formula);
+            while (negEqualityNegatedMatcher.find()) {
+                String left = negEqualityNegatedMatcher.group(1).trim();
+                String right = negEqualityNegatedMatcher.group(2).trim();
+                String replacement = "~" + left + " != " + right;
+                formula = formula.replace(negEqualityNegatedMatcher.group(), replacement);
+                modified = true;
+                break;
+            }
+
+            /*  Double negation: ~(~X) -> X
+            String doubleNegationPattern = "~\\(~([^()]+)\\)";
+            Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
+            Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
+            while (doubleNegationMatcher.find()) {
+                String inner = doubleNegationMatcher.group(1).trim();
+                formula = formula.replace(doubleNegationMatcher.group(), inner);
+                modified = true;
+                break;
+            }
+            */
+
+
+            // Add additional patterns as necessary for edge cases
 
         } while (modified);
 
