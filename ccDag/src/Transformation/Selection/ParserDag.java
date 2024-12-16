@@ -20,17 +20,18 @@ public class ParserDag {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
                 // "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
+                // "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) &
+                // cdr(a) = cdr(a))))",
                 // "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
                 // "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
                 // "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
-                // "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
                 // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
                 // "select(store(car(x),cdr(y)),x) = y",
 
-                "Fn(p, Hn(p, Dn(q,s)))",
+                // "Fn(p, Hn(p, Dn(q,s)))",
 
                 // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
                 // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) ",
@@ -51,61 +52,56 @@ public class ParserDag {
         };
 
         callAll(formulas);
-       
+
     }
 
+    public static void callAll(String[] formulas) {
 
-    public static void callAll(String[] formulas){
+        // Loop through each formula, process it and print results
+        for (String formula : formulas) {
 
+            // Initialize the Calculator and ParserDnf with the formula
+            Calculator calculator = new Calculator(formula);
+            calculator.calculate();
 
-         // Loop through each formula, process it and print results
-         int count = 0;
-         for (String formula : formulas) {
-             System.out.println("---------------###  " + "Formula: " + count + "  ###----------------------- ");
-             System.out.println("\n");
-             count++;
-             System.out.println("Processing formula: " + formula);
- 
-             // Initialize the Calculator and ParserDnf with the formula
-             Calculator calculator = new Calculator(formula);
-             calculator.calculate();
- 
-             ParserDnf parser = new ParserDnf(formula);
- 
-             System.out.println("---------------------------------------------- ");
- 
-             // DNF
-             String dnf = calculator.getDnfFormula();
-             System.out.println("DNF: " + dnf);
- 
-             System.out.println("---------------------------------------------- ");
- 
-             parser.printMappings();
- 
-             // Mappings
-             Map<String, String> mappings = parser.getMappings();
- 
-             // Insert the mappings into the DNF formula
-             String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
- 
-             System.out.println("---------------------------------------------- ");
-             System.out.println("Updated DNF formula: " + updatedDnfFormula);
-             System.out.println("---------------------------------------------- ");
-             // Call the split and print function
-             splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
-             for (String splitFormula : splitFormulas) {
-                 System.out.println(splitFormula);
-             }
-             System.out.println("---------------------------------------------- ");
-             parsingFial(splitFormulas);
-             System.out.println("---------------------------------------------- ");
- 
-             // Write the updated DNF formula to a file
-             addToFile(splitFormulas);
-         }
+            ParserDnf parser = new ParserDnf(formula);
+
+            System.out.println("---------------------------------------------- ");
+
+            // DNF
+            String dnf = calculator.getDnfFormula();
+            System.out.println("DNF: " + dnf);
+
+            System.out.println("---------------------------------------------- ");
+
+            parser.printMappings();
+
+            // Mappings
+            Map<String, String> mappings = parser.getMappings();
+
+            // Insert the mappings into the DNF formula
+            String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
+
+            System.out.println("---------------------------------------------- ");
+            System.out.println("Updated DNF formula: " + updatedDnfFormula);
+            System.out.println("---------------------------------------------- ");
+            // Call the split and print function
+            splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
+            for (String splitFormula : splitFormulas) {
+                System.out.println(splitFormula);
+            }
+            System.out.println("---------------------------------------------- ");
+            String[] newForm = finalParser(splitFormulas);
+            System.out.println("---------------------------------------------- ");
+
+            for(String s : newForm){
+                System.out.println(s);
+            }
+
+            // Write the updated DNF formula to a file
+            addToFile(newForm);
+        }
     }
-
-
 
     /**
      * Writes the updated DNF formulas to separate files.
@@ -218,70 +214,52 @@ public class ParserDag {
         return updatedFormula;
     }
 
-    public static String[] parsingFial(String[] formulas) {
-
-        // map the functions
+    public static String[] finalParser(String[] formulas) {
         Map<String, String> functionMapping = new HashMap<>();
         boolean modified;
 
-        // Regex to identify innermost function calls
-        String functionPattern = "\\b([A-Za-z]+n|car|cdr|cons|store|select|atom|atoms)\\([^()]*\\)";
+        for (int i = 0; i < formulas.length; i++) {
+            String formula = formulas[i];
 
-        Pattern pattern = Pattern.compile(functionPattern);
+            // Regex to identify innermost function calls
+            String functionPattern = "\\b([A-Za-z]+n|car|cdr|cons|store|select|atom|atoms)\\([^()]*\\)";
+            Pattern pattern = Pattern.compile(functionPattern);
 
-        for (String formula : formulas) {
+            // Process innermost functions
             Matcher matcher = pattern.matcher(formula);
-
-            // Process formula until no more functions can be matched
             while (matcher.find()) {
                 String fullFunction = matcher.group();
-
-                // Check if this function is already mapped
                 String mappedVar = functionMapping.get(fullFunction);
                 if (mappedVar == null) {
-                    // Create a new mapping for this function
                     mappedVar = "s" + functionMapping.size();
                     functionMapping.put(fullFunction, mappedVar);
                 }
-
-                // Replace the function in the formula
                 formula = formula.replace(fullFunction, mappedVar);
-
-                // Restart matching process on the updated formula
                 matcher = pattern.matcher(formula);
             }
 
-            // print all the mappings
+            // Debug: Output function mappings
             System.out.println("Function Mappings: ");
             for (Map.Entry<String, String> entry : functionMapping.entrySet()) {
                 System.out.println(entry.getKey() + " -> " + entry.getValue());
             }
 
-            System.out.println("Updated Formula: " + formula);
-
-            // find formulas like (~(sn)) where n is a number
+            // Handle negations like ~(sn) -> ~sn
             String negationPattern = "\\(~\\(s\\d+\\)\\)";
-            Pattern negation = Pattern.compile(negationPattern);
-            Matcher negationMatcher = negation.matcher(formula);
-            String fullNegation = "";
+            Pattern negationRegex = Pattern.compile(negationPattern);
+            Matcher negationMatcher = negationRegex.matcher(formula);
             while (negationMatcher.find()) {
-                fullNegation = negationMatcher.group();
-                System.out.println("Negation: " + fullNegation);
-                if (!fullNegation.isEmpty()) {
-                    // transform the fullNegation to be form (~(sn)) -> ~sn
-                    String transformedNegation = "~" + fullNegation.substring(3, fullNegation.length() - 2);
-                    formula = formula.replace(fullNegation, transformedNegation);
-                    System.out.println("Transformed Negation: " + transformedNegation);
-                }
+                String transformedNegation = "~"
+                        + negationMatcher.group().substring(3, negationMatcher.group().length() - 2);
+                formula = formula.replace(negationMatcher.group(), transformedNegation);
             }
 
-            // Remove outer parentheses if they exist
+            // Remove outer parentheses
             if (formula.startsWith("(") && formula.endsWith(")")) {
                 formula = formula.substring(1, formula.length() - 1).trim();
             }
-            System.out.println("Updated Formula: " + formula);
 
-            // take off the doble aparethesis like ((sn = sn)) and make it (sn = sn)
+            // Remove double parentheses
             String doubleParenthesesPattern = "\\(\\(([^()]+)\\)\\)";
             Pattern doubleParentheses = Pattern.compile(doubleParenthesesPattern);
             Matcher doubleParenthesesMatcher = doubleParentheses.matcher(formula);
@@ -289,9 +267,8 @@ public class ParserDag {
                 String inner = doubleParenthesesMatcher.group(1).trim();
                 formula = formula.replace(doubleParenthesesMatcher.group(), "(" + inner + ")");
             }
-            // System.out.println("Updated Formula no (()): " + formula);
 
-            // take off () if is written like (~(sn = sn)) and make ~(sn = sn)
+            // Adjust negation parentheses
             String negationParenthesesPattern = "\\(~\\(([^()]+)\\)\\)";
             Pattern negationParentheses = Pattern.compile(negationParenthesesPattern);
             Matcher negationParenthesesMatcher = negationParentheses.matcher(formula);
@@ -299,58 +276,35 @@ public class ParserDag {
                 String inner = negationParenthesesMatcher.group(1).trim();
                 formula = formula.replace(negationParenthesesMatcher.group(), "~(" + inner + ")");
             }
-            System.out.println("Updated Formula no (~()): " + formula);
+
             // Apply De Morgan's laws
             formula = applyDeMorgan(formula);
-            System.out.println("Formula after applying De Morgan's laws: " + formula);
 
-            // check if there are double () like ((sn = sn)) and make it (sn = sn)
-
-            // take off all the ()
+            // Remove all extraneous parentheses and replace `~` with `-`
             formula = formula.replaceAll("[()]", "");
-
-            // replace all the ~ with -
             formula = formula.replaceAll("~", "-");
 
-            // lets remap all the functions
-
+            // Re-map all the functions until stable
             do {
                 modified = false;
                 for (Map.Entry<String, String> entry : functionMapping.entrySet()) {
                     String key = entry.getKey();
                     String value = entry.getValue();
-
-                    // Use regex with word boundaries to replace only exact matches
                     String regexKey = "\\b" + value + "\\b";
                     if (formula.matches(".*" + regexKey + ".*")) {
                         formula = formula.replaceAll(regexKey, key);
-                        modified = true; // Mark as modified for further iterations
+                        modified = true;
                     }
                 }
-            } while (modified); // Repeat until no more replacements for 's'
+            } while (modified);
 
-            System.out.println("Final Formula: " + formula);
+            // Update the formula in the array
+            formulas[i] = formula;
 
-            // clean the splitFormulas array
-            for (int i = 0; i < splitFormulas.length; i++) {
-                splitFormulas[i] = "";
-            }
-
-            // isert all the formla into the splitFormulas array based on formula
-
-            for (int i = 0; i < splitFormulas.length; i++) {
-                splitFormulas[i] = formula;
-            }
-
-            System.out.println("#################################################################");
-
-            for (String splitFormula : splitFormulas) {
-                System.out.println(splitFormula);
-            }
-
-            System.out.println("#################################################################");
-
+            // Debugging output
+            System.out.println("Processed Formula: " + formula);
         }
+
         return formulas;
     }
 
