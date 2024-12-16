@@ -57,6 +57,9 @@ public class ParserDag {
 
     public static void callAll(String[] formulas) {
 
+        System.out.println("Starting the transformation process...");
+        System.out.println("Original formulas: " + Arrays.toString(formulas));
+
         // Loop through each formula, process it and print results
         for (String formula : formulas) {
 
@@ -74,7 +77,7 @@ public class ParserDag {
 
             System.out.println("---------------------------------------------- ");
 
-            parser.printMappings();
+            // parser.printMappings();
 
             // Mappings
             Map<String, String> mappings = parser.getMappings();
@@ -90,10 +93,10 @@ public class ParserDag {
             for (String splitFormula : splitFormulas) {
                 System.out.println(splitFormula);
             }
-            System.out.println("---------------------------------------------- ");
-            String[] newForm = finalParser(splitFormulas);
-            System.out.println("---------------------------------------------- ");
 
+            String[] newForm = finalParser(splitFormulas);
+
+            System.out.println("---------------------------------------------- ");
             for(String s : newForm){
                 System.out.println(s);
             }
@@ -219,6 +222,10 @@ public class ParserDag {
         boolean modified;
 
         for (int i = 0; i < formulas.length; i++) {
+
+            System.out.println("---------------------------------------------- ");
+            System.out.println("Original Formula: " + formulas[i]);
+
             String formula = formulas[i];
 
             // Regex to identify innermost function calls
@@ -238,11 +245,11 @@ public class ParserDag {
                 matcher = pattern.matcher(formula);
             }
 
-            // Debug: Output function mappings
+            /*  Debug: Output function mappings
             System.out.println("Function Mappings: ");
             for (Map.Entry<String, String> entry : functionMapping.entrySet()) {
                 System.out.println(entry.getKey() + " -> " + entry.getValue());
-            }
+            }*/
 
             // Handle negations like ~(sn) -> ~sn
             String negationPattern = "\\(~\\(s\\d+\\)\\)";
@@ -277,8 +284,16 @@ public class ParserDag {
                 formula = formula.replace(negationParenthesesMatcher.group(), "~(" + inner + ")");
             }
 
+            /*  Debugging output
+            System.out.println("Before De Morgan: " + formula);
+            */
+
             // Apply De Morgan's laws
             formula = applyDeMorgan(formula);
+
+            /*  Debugging output
+            System.out.println("After De Morgan: " + formula);
+            */
 
             // Remove all extraneous parentheses and replace `~` with `-`
             formula = formula.replaceAll("[()]", "");

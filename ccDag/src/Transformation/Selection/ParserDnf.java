@@ -15,12 +15,11 @@ public class ParserDnf {
     /**
      * Transforms logical formula to normalize and preprocess negations.
      * Handles logical negations and ensures proper transformations.
+     * 
      * @param formula Input formula
      * @return Transformed formula
      */
     public static String transformFormula(String formula) {
-
-
 
         return formula;
     }
@@ -28,6 +27,7 @@ public class ParserDnf {
     /**
      * Processes and normalizes a logical formula iteratively by replacing equality
      * sub-formulas and transforming the string.
+     * 
      * @return Updated normalized formula string
      */
     public String processFormula() {
@@ -37,8 +37,6 @@ public class ParserDnf {
         for (Map.Entry<String, String> entry : NestedFunctionExtractor.functionMapping.entrySet()) {
             updatedFormula = updatedFormula.replace(entry.getValue(), entry.getKey());
         }
-
-        System.out.println("Updated Formula: " + updatedFormula);
 
         boolean modified;
         int equalityCounter = 0;
@@ -53,17 +51,13 @@ public class ParserDnf {
                 updatedFormula = updatedFormula.replace(subFormula, indexedTerm);
                 modified = true;
             }
-            System.out.println("Updated Formula: " + updatedFormula);
 
             String transformedFormula = ParserDnf.transformFormula(updatedFormula);
-
-            System.out.println("Transformed Formula: " + transformedFormula);
 
             if (!transformedFormula.equals(updatedFormula)) {
                 updatedFormula = transformedFormula;
                 modified = true;
             }
-            System.out.println("Updated Formula: " + updatedFormula);
         } while (modified && Pattern.compile("\\s*(=|!=)\\s*").matcher(updatedFormula).find());
 
         return updatedFormula;
@@ -78,8 +72,10 @@ public class ParserDnf {
 
     public void printMappings() {
         System.out.println("Function Mappings:   | Equality Mappings:");
-        Iterator<Map.Entry<String, String>> functionIterator = NestedFunctionExtractor.functionMapping.entrySet().iterator();
-        Iterator<Map.Entry<String, String>> equalityIterator = NestedFunctionExtractor.subFormulaMapping.entrySet().iterator();
+        Iterator<Map.Entry<String, String>> functionIterator = NestedFunctionExtractor.functionMapping.entrySet()
+                .iterator();
+        Iterator<Map.Entry<String, String>> equalityIterator = NestedFunctionExtractor.subFormulaMapping.entrySet()
+                .iterator();
 
         while (functionIterator.hasNext() || equalityIterator.hasNext()) {
             String functionMappingEntry = functionIterator.hasNext() ? formatMapping(functionIterator.next()) : "";
