@@ -1,1 +1,0 @@
-car(x)=car(y);cdr(x)=cdr(y);Fn(x)!=Fn(y);x=cons(u1,u2);y=cons(v1,v2);

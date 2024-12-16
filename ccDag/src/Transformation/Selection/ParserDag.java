@@ -103,6 +103,8 @@ public class ParserDag {
         }
     }
 
+    
+
     /**
      * Writes the updated DNF formulas to separate files.
      * Each execution creates a new file with an incremented number in its name.
