@@ -16,43 +16,19 @@ public class ParserDag {
     // Global array to store split formulas
     private static String[] splitFormulas;
 
-    public static void main(String[] args) {
-        // Array of formulas using functions like store, cons, car, cdr, etc.
-        String[] formulas = {
-                // "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                // "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) &
-                // cdr(a) = cdr(a))))",
-                // "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
-                // "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
+    private String[] formulas;
 
-                // "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
+    public ParserDag(String[] formulas) {
+        this.formulas = formulas;
+    }
 
-                "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
-                // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
-                // "select(store(car(x),cdr(y)),x) = y",
+    public void execute(){
+        splitFormulas = formulas;
+        callAll(splitFormulas);
+    }
 
-                // "Fn(p, Hn(p, Dn(q,s)))",
-
-                // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
-                // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) ",
-
-                // " ~( (~(Fn(a,b))) != (~(cons(c,d))) ) ",
-                // "~( (~(Fn(a,b))) = (~(cons(c,d))) )",
-                // "~( Fn(a,b) = (~(cons(c,d))) )",
-                // "~( (~(Fn(a,b))) = cons(c,d) )",
-                // "~( Fn(a,b) != (~(cons(c,d))) )",
-                // "~( (~(Fn(a,b))) != cons(c,d) )",
-                // "~( (~(~(Fn(a,b))) != (~(cons(cdr(c),d))) )", TODO: fix this before making
-                // the calclator transformation if there are 2 negations in updated formuala it
-                // have to take off it
-
-                // "~( ( ~ (~(Fn(a,b))) = (~(cons(c,d))) ) | (Fn(a,b) != (~(cons(c,d))) !=
-                // Fn(a,b) = (~(cons(Fn(x,y),cdr(Fn(d)))))) )"
-
-        };
-
-        callAll(formulas);
-
+    // TODO: Implement the function to get the explanations
+    public static void getExpleantions() {
     }
 
     public static void callAll(String[] formulas) {
@@ -75,7 +51,6 @@ public class ParserDag {
             String dnf = calculator.getDnfFormula();
             System.out.println("DNF: " + dnf);
 
-            System.out.println("---------------------------------------------- ");
 
             // parser.printMappings();
 
