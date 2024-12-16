@@ -1,5 +1,1 @@
-store(x,y) = cons(a,b) ; -car(cons(d,e)) ; -cdr(a) ; cdr(a) = cdr(a)#
-store(x,y) = cons(a,b) ; -car(cons(d,e)) ; -cdr(a) ; cdr(a) = cdr(a)#
-store(x,y) = cons(a,b) ; -car(cons(d,e)) ; -cdr(a) ; cdr(a) = cdr(a)#
-store(x,y) = cons(a,b) ; -car(cons(d,e)) ; -cdr(a) ; cdr(a) = cdr(a)#
-store(x,y) = cons(a,b) ; -car(cons(d,e)) ; -cdr(a) ; cdr(a) = cdr(a)#
+Fn(p, Hn(p, Dn(q,s)))#
