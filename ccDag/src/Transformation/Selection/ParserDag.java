@@ -50,60 +50,62 @@ public class ParserDag {
 
         };
 
-        // Loop through each formula, process it and print results
-        int count = 0;
-        for (String formula : formulas) {
-            System.out.println("---------------###  " + "Formula: " + count + "  ###----------------------- ");
-            System.out.println("\n");
-            count++;
-            System.out.println("Processing formula: " + formula);
-
-            // Initialize the Calculator and ParserDnf with the formula
-            Calculator calculator = new Calculator(formula);
-            calculator.calculate();
-
-            ParserDnf parser = new ParserDnf(formula);
-
-            System.out.println("---------------------------------------------- ");
-
-            // DNF
-            String dnf = calculator.getDnfFormula();
-            System.out.println("DNF: " + dnf);
-
-            System.out.println("---------------------------------------------- ");
-
-            parser.printMappings();
-
-            // Mappings
-            Map<String, String> mappings = parser.getMappings();
-
-            // Insert the mappings into the DNF formula
-            String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
-
-            System.out.println("---------------------------------------------- ");
-            System.out.println("Updated DNF formula: " + updatedDnfFormula);
-            System.out.println("---------------------------------------------- ");
-            // Call the split and print function
-            splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
-            for (String splitFormula : splitFormulas) {
-                System.out.println(splitFormula);
-            }
-            System.out.println("---------------------------------------------- ");
-            parsingFial(splitFormulas);
-            System.out.println("---------------------------------------------- ");
-            // System.out.println("Applying De Morgan's laws and parsing negations...");
-            // Apply De Morgan's laws and parse negations
-            // String[] transformedFormulas = applyDeMorganAndParse(splitFormulas);
-            // for (String transformedFormula : transformedFormulas) {
-            // System.out.println(transformedFormula);
-            // }
-
-            // Write the updated DNF formula to a file
-            addToFile(splitFormulas);
-        }
+        callAll(formulas);
+       
     }
 
-    
+
+    public static void callAll(String[] formulas){
+
+
+         // Loop through each formula, process it and print results
+         int count = 0;
+         for (String formula : formulas) {
+             System.out.println("---------------###  " + "Formula: " + count + "  ###----------------------- ");
+             System.out.println("\n");
+             count++;
+             System.out.println("Processing formula: " + formula);
+ 
+             // Initialize the Calculator and ParserDnf with the formula
+             Calculator calculator = new Calculator(formula);
+             calculator.calculate();
+ 
+             ParserDnf parser = new ParserDnf(formula);
+ 
+             System.out.println("---------------------------------------------- ");
+ 
+             // DNF
+             String dnf = calculator.getDnfFormula();
+             System.out.println("DNF: " + dnf);
+ 
+             System.out.println("---------------------------------------------- ");
+ 
+             parser.printMappings();
+ 
+             // Mappings
+             Map<String, String> mappings = parser.getMappings();
+ 
+             // Insert the mappings into the DNF formula
+             String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
+ 
+             System.out.println("---------------------------------------------- ");
+             System.out.println("Updated DNF formula: " + updatedDnfFormula);
+             System.out.println("---------------------------------------------- ");
+             // Call the split and print function
+             splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
+             for (String splitFormula : splitFormulas) {
+                 System.out.println(splitFormula);
+             }
+             System.out.println("---------------------------------------------- ");
+             parsingFial(splitFormulas);
+             System.out.println("---------------------------------------------- ");
+ 
+             // Write the updated DNF formula to a file
+             addToFile(splitFormulas);
+         }
+    }
+
+
 
     /**
      * Writes the updated DNF formulas to separate files.
