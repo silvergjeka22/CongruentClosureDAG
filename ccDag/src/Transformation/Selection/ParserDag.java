@@ -6,6 +6,10 @@ import java.util.regex.Pattern;
 
 import Transformation.DNF2.*;
 import Transformation.Selection.ParserDnf;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class ParserDag {
 
@@ -16,8 +20,7 @@ public class ParserDag {
         // Array of formulas using functions like store, cons, car, cdr, etc.
         String[] formulas = {
                 // "(Fn(p,q) = store(x,y) | ~((~(Fn(p,q))) = store(x,y)))",
-                // "(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) &
-                // cdr(a) = cdr(a))))",
+                //"(store(x,y) = cons(a,b) & ((car(cons(d,e)) & cdr(a)) | (cdr(a) = cdr(a) & cdr(a) = cdr(a))))",
                 // "(store(x,y) = cons(a,b) & (car(cons(d,e)) & cdr(a)))",
                 // "(store(x,y) = cons(a,b) & car(cons(d,e)) = cdr(cons(a,b)))",
 
@@ -27,20 +30,23 @@ public class ParserDag {
                 // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
                 // "select(store(car(x),cdr(y)),x) = y",
 
-                // "Fn(p, Hn(p, Dn(q,s)))",
+                "Fn(p, Hn(p, Dn(q,s)))",
 
                 // "Fn(p,q) = store(x,y) = (~(Fn(a,b) != cons(c,d)))",
                 // " (~(Fn(p,q))) = (~(car(x))) != (~(Fn(a,b) != cons(c,d))) ",
 
-                //"  ~( (~(Fn(a,b))) != (~(cons(c,d))) )  ", 
-                //"~( (~(Fn(a,b))) = (~(cons(c,d))) )", 
-                //"~( Fn(a,b) = (~(cons(c,d))) )", 
-                //"~( (~(Fn(a,b))) = cons(c,d) )", 
-                //"~( Fn(a,b) != (~(cons(c,d))) )", 
-                //"~( (~(Fn(a,b))) != cons(c,d) )", 
-                //"~( (~(~(Fn(a,b))) != (~(cons(cdr(c),d))) )", TODO: fix this before makinf the calclator transformation if there are 2 negations in updated formuala it have to take off it
+                // " ~( (~(Fn(a,b))) != (~(cons(c,d))) ) ",
+                // "~( (~(Fn(a,b))) = (~(cons(c,d))) )",
+                // "~( Fn(a,b) = (~(cons(c,d))) )",
+                // "~( (~(Fn(a,b))) = cons(c,d) )",
+                // "~( Fn(a,b) != (~(cons(c,d))) )",
+                // "~( (~(Fn(a,b))) != cons(c,d) )",
+                // "~( (~(~(Fn(a,b))) != (~(cons(cdr(c),d))) )", TODO: fix this before making
+                // the calclator transformation if there are 2 negations in updated formuala it
+                // have to take off it
 
-                "~( ( ~ (~(Fn(a,b))) = (~(cons(c,d)))  ) | (Fn(a,b) != (~(cons(c,d))) != Fn(a,b) = (~(cons(Fn(x,y),cdr(Fn(d)))))) )"
+                // "~( ( ~ (~(Fn(a,b))) = (~(cons(c,d))) ) | (Fn(a,b) != (~(cons(c,d))) !=
+                // Fn(a,b) = (~(cons(Fn(x,y),cdr(Fn(d)))))) )"
 
         };
 
@@ -66,7 +72,7 @@ public class ParserDag {
 
             System.out.println("---------------------------------------------- ");
 
-             parser.printMappings();
+            parser.printMappings();
 
             // Mappings
             Map<String, String> mappings = parser.getMappings();
@@ -91,6 +97,38 @@ public class ParserDag {
             // for (String transformedFormula : transformedFormulas) {
             // System.out.println(transformedFormula);
             // }
+
+            // Write the updated DNF formula to a file
+            addToFile(splitFormulas);
+        }
+    }
+
+    /**
+     * Writes the updated DNF formulas to separate files.
+     * Each execution creates a new file with an incremented number in its name.
+     *
+     * @param splitFormulas The array of formatted formula parts.
+     */
+    public static void addToFile(String[] splitFormulas) {
+        String baseFilePath = "src/CCAlgorithm/inputFile/dnfFormula";
+        int fileIndex = 0;
+        File file;
+
+        // Find the next available file index
+        do {
+            file = new File(baseFilePath + fileIndex + ".txt");
+            fileIndex++;
+        } while (file.exists());
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (String formula : splitFormulas) {
+                writer.write(formula);
+                writer.write("#");
+                writer.newLine();
+            }
+            System.out.println("Formulas successfully written to file: " + file.getPath());
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
@@ -317,18 +355,19 @@ public class ParserDag {
         do {
             modified = false;
 
-            /*  Double negation: ~(~X) -> X
-            String doubleNegationPattern = "~\\(~([^()]+)\\)";
-            Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
-            Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
-            while (doubleNegationMatcher.find()) {
-                String inner = doubleNegationMatcher.group(1).trim();
-                formula = formula.replace(doubleNegationMatcher.group(), inner);
-                modified = true;
-                break;
-            }
-
-            */
+            /*
+             * Double negation: ~(~X) -> X
+             * String doubleNegationPattern = "~\\(~([^()]+)\\)";
+             * Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
+             * Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
+             * while (doubleNegationMatcher.find()) {
+             * String inner = doubleNegationMatcher.group(1).trim();
+             * formula = formula.replace(doubleNegationMatcher.group(), inner);
+             * modified = true;
+             * break;
+             * }
+             * 
+             */
 
             // TODO: make the de morgan for the functuon nefations like ~((a=b) = ~(c=d))
 
@@ -384,18 +423,18 @@ public class ParserDag {
                 break;
             }
 
-            /*  Double negation: ~(~X) -> X
-            String doubleNegationPattern = "~\\(~([^()]+)\\)";
-            Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
-            Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
-            while (doubleNegationMatcher.find()) {
-                String inner = doubleNegationMatcher.group(1).trim();
-                formula = formula.replace(doubleNegationMatcher.group(), inner);
-                modified = true;
-                break;
-            }
-            */
-
+            /*
+             * Double negation: ~(~X) -> X
+             * String doubleNegationPattern = "~\\(~([^()]+)\\)";
+             * Pattern doubleNegation = Pattern.compile(doubleNegationPattern);
+             * Matcher doubleNegationMatcher = doubleNegation.matcher(formula);
+             * while (doubleNegationMatcher.find()) {
+             * String inner = doubleNegationMatcher.group(1).trim();
+             * formula = formula.replace(doubleNegationMatcher.group(), inner);
+             * modified = true;
+             * break;
+             * }
+             */
 
             // Add additional patterns as necessary for edge cases
 
