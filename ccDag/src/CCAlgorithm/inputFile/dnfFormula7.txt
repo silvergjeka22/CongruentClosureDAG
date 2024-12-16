@@ -1,3 +1,0 @@
-Fn(p,q) != store(x,y) ; Fn(a,b) = cons(c,d)#
-Fn(p,q) = store(x,y) ; Fn(a,b) = cons(c,d)#
-Fn(p,q) = store(x,y) ; Fn(a,b) != cons(c,d)#
