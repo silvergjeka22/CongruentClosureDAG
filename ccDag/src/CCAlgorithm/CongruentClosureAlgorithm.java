@@ -131,6 +131,36 @@ public class CongruentClosureAlgorithm{
 	}
 	
 	private static TermPair nelsonOppen_h() throws Exception{
+
+
+		// print all the nodes in the DAG
+		System.out.println("DAG:");
+		for(String s: dag.keySet())
+			System.out.println(dag.get(s));
+		
+		// print all the equal predicate
+		System.out.println("Equal Predicates:");
+		for(TermPair tp: equalPred)
+			System.out.println(tp);
+		
+		// print all the not equal predicates
+		System.out.println("Not Equal Predicates:");
+		for(TermPair tp: notEqualPred)
+			System.out.println(tp);
+		
+		// print all the atom predicates
+		System.out.println("Atom Predicates:");
+		for(String s: atomPred)
+			System.out.println(s);
+		
+		// print all the cons terms
+		System.out.println("Cons Terms:");
+		for(String s: consTerm)
+			System.out.println(s);
+
+
+
+
 		System.out.print("\rExecuting Congruent Closure Algorithm\t0%");
 		// atom axiom: a consTerm cannot be the argument of an atom predicate
 		for(String id: atomPred)
