@@ -134,6 +134,7 @@ public class CongruentClosureAlgorithm{
 
 
 		// print all the nodes in the DAG
+		System.out.println("-------------");
 		System.out.println("DAG:");
 		for(String s: dag.keySet())
 			System.out.println(dag.get(s));

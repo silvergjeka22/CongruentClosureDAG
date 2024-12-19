@@ -10,7 +10,7 @@ public class Node{
 	private int			rank;
 	private List<String>		args;
 	private Set<String>			ccpar;
-	private Set<String>			banned;	
+	private Set<String>			banned;	// means that this node is banned from being a parent of some other node
 	
 	/**
 	* Constructs a node with its id and fn fields
