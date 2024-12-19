@@ -84,6 +84,43 @@ public class CongruentClosureAlgorithm {
 			System.out.println(s);
 
 		System.out.print("\rExecuting Congruent Closure Algorithm\t0%");
+
+		// Step 1: Array Theory Axioms
+		for (String id : atomPred) {
+			if (consTerm.contains(id)) {
+				return new TermPair("atom(" + id + ")", id);
+			}
+		}
+
+		for (String s : atomPred) {
+			node(s).getBanned().addAll(consTerm);
+		}
+
+		for (String s : consTerm) {
+			node(s).getBanned().addAll(atomPred);
+		}
+
+		// Array-specific axioms
+		for (String s : dag.keySet()) {
+			Node n = node(s);
+			if (n.getFn().equals("select") && n.getArgs().size() == 2) {
+				String storeNode = n.getArgs().get(0);
+				String index = n.getArgs().get(1);
+				if (node(storeNode).getFn().equals("store")) {
+					String updatedIndex = node(storeNode).getArgs().get(1);
+					String updatedValue = node(storeNode).getArgs().get(2);
+
+					// Ensure select(store(a, i, v), i) = v
+					if (index.equals(updatedIndex)) {
+						TermPair conflict = merge(s, updatedValue);
+						if (conflict != null) {
+							return conflict;
+						}
+					}
+				}
+			}
+		}
+
 		// atom axiom: a consTerm cannot be the argument of an atom predicate
 		for (String id : atomPred)
 			if (consTerm.contains(id)) {
