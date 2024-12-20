@@ -1,1 +1,1 @@
-select(store(a, i, v), i) = v; select(store(a, j, w), j) = w; i != j
+car(x)=car(y);cdr(x)=cdr(y);Fn(x)!=Fn(y);x=cons(u1,u2);y=cons(v1,v2);
