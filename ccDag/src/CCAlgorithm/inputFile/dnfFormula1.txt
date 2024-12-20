@@ -1,1 +1,1 @@
-Fn(p,q) != Sn(x) ; Fn(a,b) = cons(c,d);
+select(store(store(store(store(a,i,e),i,e),i,e),i,e),i) != e; 

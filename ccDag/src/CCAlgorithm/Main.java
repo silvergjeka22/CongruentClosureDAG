@@ -91,9 +91,9 @@ public class Main{
                 //System.out.println("\n\n" + ccObj.dag + "\n\n");    
                 //System.out.println("Total nodes: " + ccObj.dag.size());
                 if(term == null)
-                    System.out.println("SATISFIABLE");
+                    System.out.println("\nSATISFIABLE");
                 else {
-                    System.out.println("UNSATISFIABLE");
+                    System.out.println("\nUNSATISFIABLE");
                     String temp, temp1;
                     // predicates
                     if((temp = term.getFirst()).contains("p_") || 
