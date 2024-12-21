@@ -24,6 +24,98 @@ public class CongruentClosureAlgorithm {
 		return nelsonOppen_h();
 	}
 
+	private static TermPair nelsonOppen_h() throws Exception {
+		// Step 1: Handle the atom and consTerm axioms as in the original code
+		for (String id : atomPred)
+			if (consTerm.contains(id)) {
+				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
+				return new TermPair("atom(" + id + ")", id);
+			}
+		for (String s : atomPred)
+			node(s).getBanned().addAll(consTerm);
+		for (String s : consTerm)
+			node(s).getBanned().addAll(atomPred);
+
+		// Step 2: Handle car/cdr projection axioms as in the original code
+		Node nTemp;
+		TermPair ct = null;
+		for (String s : consTerm) {
+			nTemp = new Node("car(" + s + ")", "car");
+			nTemp.addArg(s);
+			node(s).addParent(nTemp.getId());
+			dag.put(nTemp.getId(), nTemp);
+			if ((ct = merge(nTemp.getId(), node(s).getArgs().get(0))) != null) {
+				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
+				return ct;
+			}
+			nTemp = new Node("cdr(" + s + ")", "cdr");
+			nTemp.addArg(s);
+			node(s).addParent(nTemp.getId());
+			dag.put(nTemp.getId(), nTemp);
+			if ((ct = merge(nTemp.getId(), node(s).getArgs().get(1))) != null) {
+				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
+				return ct;
+			}
+		}
+
+		// Step 3: Equality terms in the same congruent class (i1 = j)
+		float step = 100 / ((float) equalPred.size()), count = 0;
+		int perc = 0;
+		for (TermPair tp : equalPred) {
+			count += step;
+			for (; count >= perc && perc <= 100; perc++)
+				System.out.print("\rExecuting Congruent Closure Algorithm\t" + perc + "%");
+			if ((ct = merge(tp.getFirst(), tp.getSecond())) != null) {
+				System.out.println();
+				return ct;
+			}
+		}
+
+		// Step 4: Handle inequality relations (i1 != i2)
+		for (TermPair tp : notEqualPred) {
+			String id1 = tp.getFirst();
+			String id2 = tp.getSecond();
+			if (find(id1).equals(find(id2))) {
+				return new TermPair(id1, id2); // Conflict found, formula is unsatisfiable
+			}
+		}
+
+		// Array Axioms: Process select/store relations
+		// Step 5: Handle select operations
+		for (String s : dag.keySet()) {
+			Node n = node(s);
+			if (n.getFn().equals("select") && n.getArgs().size() == 2) {
+				String storeNode = n.getArgs().get(0);
+				String index = n.getArgs().get(1);
+
+				TermPair conflict = processSelect(storeNode, index, s);
+				if (conflict != null) {
+					return conflict; // Conflict found in select operation
+				}
+			}
+		}
+
+		// Step 6: Process store operations, handling nested stores
+		for (String s : dag.keySet()) {
+			Node n = node(s);
+			if (n.getFn().equals("store")) {
+				String storeNode = n.getArgs().get(0);
+				String index = n.getArgs().get(1);
+				String value = n.getArgs().get(2);
+
+				TermPair conflict = processStore(storeNode, index, value, s);
+				if (conflict != null) {
+					return conflict; // Conflict found in store operation
+				}
+			}
+		}
+
+		// Step 7: satisfiable
+		System.out.println("\rExecuting Congruent Closure Algorithm\t100%");
+		return null;
+	}
+
+	// Method to process select operations, handling select after a store
 	private static TermPair processSelect(String storeNode, String index, String selectNode) throws Exception {
 		Node n = node(storeNode);
 
@@ -36,112 +128,47 @@ public class CongruentClosureAlgorithm {
 			if (index.equals(updatedIndex)) {
 				TermPair conflict = merge(selectNode, updatedValue);
 				if (conflict != null) {
-					return conflict;
+					return conflict; // Conflict found in select operation
+				}
+			} else {
+				// Recursively process the select operation on the previous store node
+				TermPair conflict = processSelect(find(n.getArgs().get(0)), index, selectNode);
+				if (conflict != null) {
+					return conflict; // Conflict found in select operation
 				}
 			}
-
-			// Recursively process the store node in case it's nested
-			String innerStoreNode = n.getArgs().get(0);
-			return processSelect(innerStoreNode, index, selectNode);
-		}
-		// If the node is not a store, it's a regular select, return null (no conflict)
-		else if (n.getFn().equals("select")) {
-			return null;
 		}
 
+		// No conflict found
 		return null;
 	}
 
-	private static TermPair nelsonOppen_h() throws Exception {
+	// Method to process store operations, ensuring the store affects the right
+	// terms
+	private static TermPair processStore(String storeNode, String index, String value, String storeNodeId)
+			throws Exception {
+		Node n = node(storeNode);
 
-		// Step 1: Array Theory Axioms
-		for (String id : atomPred) {
-			if (consTerm.contains(id)) {
-				return new TermPair("atom(" + id + ")", id);
-			}
-		}
+		// Check for conflicts in nested store operations
+		if (n.getFn().equals("store")) {
+			String nestedStoreIndex = n.getArgs().get(1);
+			String nestedStoreValue = n.getArgs().get(2);
 
-		for (String s : atomPred) {
-			node(s).getBanned().addAll(consTerm);
-		}
-
-		for (String s : consTerm) {
-			node(s).getBanned().addAll(atomPred);
-		}
-
-		for (String s : dag.keySet()) {
-			Node n = node(s);
-			if (n.getFn().equals("select") && n.getArgs().size() == 2) {
-				String storeNode = n.getArgs().get(0);
-				String index = n.getArgs().get(1);
-				TermPair conflict = processSelect(storeNode, index, s);
+			if (nestedStoreIndex.equals(index)) {
+				TermPair conflict = merge(value, nestedStoreValue);
 				if (conflict != null) {
-					return conflict;
+					return conflict; // Conflict found
+				}
+			} else {
+				// Recursively process the store operation on the previous store node
+				TermPair conflict = processStore(find(n.getArgs().get(0)), index, value, storeNodeId);
+				if (conflict != null) {
+					return conflict; // Conflict found
 				}
 			}
 		}
 
-		System.out.print("\rExecuting Congruent Closure Algorithm\t0%");
-		// atom axiom: a consTerm cannot be the argument of an atom predicate
-		for (String id : atomPred)
-			if (consTerm.contains(id)) {
-				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
-				return new TermPair("atom(" + id + ")", id);
-			}
-		// an atom term cannot be in the same congruent class of a term term
-		for (String s : atomPred)
-			node(s).getBanned().addAll(consTerm);
-		// a cons term cannot be in the same congruent class of an atom term
-		for (String s : consTerm)
-			node(s).getBanned().addAll(atomPred);
-
-		// Step 2: car/cdr projection axioms
-		Node nTemp;
-		TermPair ct = null; // the two terms that are in conflict
-		for (String s : consTerm) {
-			nTemp = new Node("car(" + s + ")", "car");
-			nTemp.addArg(s);
-			node(s).addParent(nTemp.getId());
-			dag.put(nTemp.getId(), nTemp);
-			// System.out.println("\t\t\t" + nTemp.getId() + " = " +
-			// node(s).getArgs().get(0));
-			if ((ct = merge(nTemp.getId(), node(s).getArgs().get(0))) != null) {
-				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
-				return ct;
-			}
-			nTemp = new Node("cdr(" + s + ")", "cdr");
-			nTemp.addArg(s);
-			node(s).addParent(nTemp.getId());
-			dag.put(nTemp.getId(), nTemp);
-			// System.out.println("\t\t\t" + nTemp.getId() + " = " +
-			// node(s).getArgs().get(1));
-			if ((ct = merge(nTemp.getId(), node(s).getArgs().get(1))) != null) {
-				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
-				return ct;
-			}
-		}
-
-		// Sep 3: the equality terms must be in the same congruent class
-		float step = 100 / ((float) equalPred.size()),
-				count = 0;
-		int perc = 0;
-		for (TermPair tp : equalPred) {
-			count += step;
-			for (; count >= perc && perc <= 100; perc++)
-				System.out.print("\rExecuting Congruent Closure Algorithm\t"
-						+ perc + "%"); // "\r" --> backspace
-			/*
-			 * System.out.println(tp.getFirst() + " <-> " + tp.getSecond() + "padri1: "
-			 * + node(tp.getFirst()).getParents().size() + " --padri2: "
-			 * + node(tp.getSecond()).getParents().size());
-			 */
-			if ((ct = merge(tp.getFirst(), tp.getSecond())) != null) {
-				System.out.println();
-				return ct;
-			}
-		}
-		System.out.println("\rExecuting Congruent Closure Algorithm\t100%");
-		// Step 6: satisfiable
+		// No conflict found
 		return null;
 	}
 
