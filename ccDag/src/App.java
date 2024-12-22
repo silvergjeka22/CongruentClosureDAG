@@ -18,7 +18,7 @@ public class App {
 
                 // "((~(Fn(x,y))) != Fn(z,w) & store(a,b) != car(cons(c,d)))",
 
-                "(Fn(p,q) = store(x,y) | ~(Fn(a,b) != cons(c,d)))",
+                "(Fn(p,q) = store(x,y,z) | ~(Fn(a,b) != cons(c,d)))",
                 // "(Fn(p,q) = store(x,y) | ~(Fn(p,q) = store(x,y)))",
                 // "select(store(car(x),cdr(y)),x) = y",
 
@@ -45,10 +45,10 @@ public class App {
 
 
         // create a new object called ParserDag
-        //ParserDag convertToDnf = new ParserDag(formulas);
-        //convertToDnf.execute();
+        ParserDag convertToDnf = new ParserDag(formulas);
+        convertToDnf.execute();
 
-        GraphVisualization.createAndDisplayGraph();
+        //GraphVisualization.createAndDisplayGraph();
 
 
     }

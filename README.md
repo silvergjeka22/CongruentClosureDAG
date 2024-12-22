@@ -6,5 +6,5 @@ to run conection with parsing and calcolator
 
 in the project path
 
-1. javac src/Transformation/Selection/ParsingDnf.java src/Transformation/DNF2/Calculator.java src/Transformation/Selection/NestedFunctionExtractor.java
+1. javac src/Transformation/Selection/ParserDnf.java src/Transformation/DNF2/Calculator.java src/Transformation/Selection/NestedFunctionExtractor.java src/App.java src/Transformation/Selection/ParserDag.java
 2. java -cp src Transformation.DNF2.Calculator

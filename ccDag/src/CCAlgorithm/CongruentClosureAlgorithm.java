@@ -71,15 +71,6 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
-		// Step 4: Handle inequality relations (i1 != i2)
-		for (TermPair tp : notEqualPred) {
-			String id1 = tp.getFirst();
-			String id2 = tp.getSecond();
-			if (find(id1).equals(find(id2))) {
-				return new TermPair(id1, id2); // Conflict found, formula is unsatisfiable
-			}
-		}
-
 		// Array Axioms: Process select/store relations
 		// Step 5: Handle select operations
 		for (String s : dag.keySet()) {
