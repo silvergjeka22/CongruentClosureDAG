@@ -45,11 +45,10 @@ public class App {
 
 
         // create a new object called ParserDag
-        ParserDag convertToDnf = new ParserDag(formulas);
+        //ParserDag convertToDnf = new ParserDag(formulas);
+        //convertToDnf.execute();
 
-
-        convertToDnf.execute();
-
+        GraphVisualization.createAndDisplayGraph();
 
 
     }
