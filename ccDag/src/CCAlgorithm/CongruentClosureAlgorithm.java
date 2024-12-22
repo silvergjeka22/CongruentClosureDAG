@@ -24,6 +24,11 @@ public class CongruentClosureAlgorithm {
 		return nelsonOppen_h();
 	}
 
+	// public get dag method
+	public static Map<String, Node> getDag() {
+		return dag;
+	}
+
 	private static TermPair nelsonOppen_h() throws Exception {
 		// Step 1: Handle the atom and consTerm axioms as in the original code
 		for (String id : atomPred)

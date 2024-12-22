@@ -10,21 +10,28 @@ public class GraphVisualization {
         Graph graph = new SingleGraph("DAG Visualization");
 
         // Enable auto-layout (optional)
-        graph.setAttribute("ui.stylesheet", "url('style.css')");
         graph.setAutoCreate(true);
         graph.setStrict(false);
 
-        // Add nodes
+        // Add nodes with labels
         graph.addNode("A").setAttribute("ui.label", "A");
         graph.addNode("B").setAttribute("ui.label", "B");
         graph.addNode("C").setAttribute("ui.label", "C");
         graph.addNode("D").setAttribute("ui.label", "D");
 
-        // Add edges (directed)
-        graph.addEdge("AB", "A", "B", true);
-        graph.addEdge("AC", "A", "C", true);
-        graph.addEdge("BD", "B", "D", true);
-        graph.addEdge("CD", "C", "D", true);
+        // Add directed edges between the nodes
+        graph.addEdge("AB", "A", "B", true);  // Edge from A to B
+        graph.addEdge("AC", "A", "C", true);  // Edge from A to C
+        graph.addEdge("BD", "B", "D", true);  // Edge from B to D
+        graph.addEdge("CD", "C", "D", true);  // Edge from C to D
+
+        // Set node size and text size using ui.style (CSS-like)
+        graph.setAttribute("ui.stylesheet", "node { size: 50px; shape: circle; text-alignment: center; text-size: 30px; fill-color: lightblue; }");
+
+        // Set edge style (use forEach() for Stream)
+        graph.edges().forEach(edge -> {
+            edge.setAttribute("ui.style", "fill-color: gray; size: 3px;");  // Style edges (thicker lines)
+        });
 
         // Display the graph
         graph.display();
