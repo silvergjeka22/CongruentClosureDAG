@@ -13,8 +13,8 @@ import CCAlgorithm.parser.*;
 import CCAlgorithm.CongruentClosureAlgorithm;
 import CCAlgorithm.bean.*;
 
-//dnf
-import Transformation.Selection.ParserDag;
+//cnf to dnf
+// import Transformation.Selection.ParserDag;
 
 
 /*
@@ -29,8 +29,7 @@ import Transformation.Selection.ParserDag;
 public class App {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception {
-        if (args.length < 1 || args.length > 2 || (args.length == 2 && !args[0].equals("-h"))
-                || (args.length == 1 && args[0].equals("-h"))) {
+        if (args.length != 1) {
             System.out.println("Usage:\tjava App \"formula\"\n" +
                     "   or\tjava App filePath");
         } else {
