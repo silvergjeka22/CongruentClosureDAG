@@ -87,20 +87,22 @@ public class ParserDag {
      * @param splitFormulas The array of formatted formula parts.
      */
     public static void addToFile(String[] splitFormulas) {
-        String baseFilePath = "src/CCAlgorithm/alredyDnfFiles/dnfFormula";
+        String baseFilePath = "src/alredyDnfFiles/dnfFormula";  // Path to your formula files
 
+        // Create a new file for each formula
         for (int i = 0; i < splitFormulas.length; i++) {
-            String filePath = baseFilePath + i + ".txt";
+            String filePath = baseFilePath + i + ".txt";  // Increment file name based on index
             File file = new File(filePath);
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(splitFormulas[i]);
-                System.out.println("Formula successfully written to file: " + file.getPath());
+                writer.write(splitFormulas[i]);  // Write the formula to the file
+                System.out.println("Formula successfully written to file: " + file.getPath() + "\n\n");
             } catch (IOException e) {
                 System.err.println("Error writing to file: " + e.getMessage());
             }
         }
     }
+
 
     /**
      * Splits the updated DNF formula by the '|' operator and returns an array of

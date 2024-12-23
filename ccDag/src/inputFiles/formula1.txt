@@ -1,0 +1,1 @@
+(Fn(p,q) = store(x,y,z) | ~(Fn(p,q) = store(x,y,z)))

@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.nio.file.*;
 import java.lang.management.*;
@@ -17,7 +18,7 @@ import CCAlgorithm.CongruentClosureAlgorithm;
 import CCAlgorithm.bean.*;
 
 //cnf to dnf
-// import Transformation.Selection.ParserDag;
+import Transformation.Selection.ParserDag;
 
 /*
  *  We need them after
@@ -32,6 +33,64 @@ public class App {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception {
 
+        // Parsing dnf
+        String readFile = "src/inputFiles/"; // Path to the directory containing your formula files
+        File inputFile = new File(readFile);
+
+        if (!inputFile.exists() || !inputFile.isDirectory()) {
+            System.out.println("Error: Input directory does not exist or is not a directory.");
+            return;
+        }
+
+        // List all files in the directory
+        File[] inputFilesDnf = inputFile.listFiles((dir, name) -> name.endsWith(".txt"));
+
+        if (inputFilesDnf == null || inputFilesDnf.length == 0) {
+            System.out.println("No input files found in the directory: " + inputFile);
+            return;
+        }
+
+        System.out.println("Available files:");
+        for (int i = 0; i < inputFilesDnf.length; i++) {
+            System.out.println((i + 1) + ". " + inputFilesDnf[i].getName());
+        }
+
+        System.out.println("\nEnter the number corresponding to the file you want to use as input:");
+        BufferedReader readerDnf = new BufferedReader(new InputStreamReader(System.in));
+        int selectedFileIndexDnf;
+
+        try {
+            selectedFileIndexDnf = Integer.parseInt(readerDnf.readLine()) - 1;
+            if (selectedFileIndexDnf < 0 || selectedFileIndexDnf >= inputFilesDnf.length) {
+                System.out.println("Invalid selection. Please restart and try again.");
+                return;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid input. Please enter a valid number.");
+            return;
+        }
+
+        // Read the selected file and process its formula
+        String formula = readFormulaFromFile(inputFilesDnf[selectedFileIndexDnf]);
+
+        // Display the formula
+        System.out.println("FORMULA:\n" + formula);
+
+        // Convert the formula into an array, with the entire formula as a single
+        // element
+        String[] formulaArray = new String[1]; // Create an array with one element
+        formulaArray[0] = formula; // Assign the entire formula string to the first element
+
+        // Display the formula as an array
+        System.out.println("Formula Array: ");
+        for (String formulaPart : formulaArray) {
+            System.out.println(formulaPart);
+        }
+
+        // Execute DNF conversion with the formula array
+        convertToDnf(formulaArray);
+
+        // Dag part
         String inputDirectoryPath = "src/alredyDnfFiles/";
         File inputDirectory = new File(inputDirectoryPath);
 
@@ -71,7 +130,8 @@ public class App {
         String input = "";
         File selectedFile = inputFiles[selectedFileIndex];
 
-        try (BufferedReader fileReader = new BufferedReader(new FileReader(selectedFile))) {
+        try (
+                BufferedReader fileReader = new BufferedReader(new FileReader(selectedFile))) {
             System.out.println("Input interpreted as path of a file with the formula inside.");
             String line;
             while ((line = fileReader.readLine()) != null) {
@@ -196,6 +256,10 @@ public class App {
                     (int) (((parserUser + algoUser) / 1000) / 60) + "m " +
                     String.format("%.4f", ((parserUser + algoUser) / 1000d) % 60) + "s\t"
                     + "(" + (parserUser + algoUser) + "ms)");
+
+
+            // appy te graph:
+            GraphVisualization.createAndDisplayGraph();
         }
     }
 
@@ -216,5 +280,26 @@ public class App {
         ThreadMXBean bean = ManagementFactory.getThreadMXBean();
         return bean.isCurrentThreadCpuTimeSupported() ? bean.getCurrentThreadCpuTime() - bean.getCurrentThreadUserTime()
                 : 0L;
+    }
+
+    private static String readFormulaFromFile(File file) throws IOException {
+        StringBuilder input = new StringBuilder();
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = fileReader.readLine()) != null) {
+                input.append(line).append("\n");
+            }
+        }
+        return input.toString().trim();
+    }
+
+    private static void convertToDnf(String[] formula) {
+        // Assuming ParserDag is a class that performs the DNF transformation
+        // The following code assumes you have a ParserDag class that can execute the
+        // DNF conversion
+
+        System.out.println("Converting formula to DNF...");
+        ParserDag convertToDnf = new ParserDag(formula); // Pass the formula array to the ParserDag constructor
+        convertToDnf.execute(); // Execute the DNF conversion
     }
 }

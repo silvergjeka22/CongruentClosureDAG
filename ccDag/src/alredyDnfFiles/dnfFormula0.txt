@@ -1,1 +1,1 @@
-i1=j;i1!=i2;select(a,j)=v1;select(store(store(a,j,v1),i2,v2),j)!=select(a,j);
+Fn(p,q) != store(x,y,z)
