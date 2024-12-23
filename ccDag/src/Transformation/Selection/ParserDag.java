@@ -22,7 +22,7 @@ public class ParserDag {
         this.formulas = formulas;
     }
 
-    public void execute(){
+    public void execute() {
         splitFormulas = formulas;
         callAll(splitFormulas);
     }
@@ -51,7 +51,6 @@ public class ParserDag {
             String dnf = calculator.getDnfFormula();
             System.out.println("DNF: " + dnf);
 
-
             // parser.printMappings();
 
             // Mappings
@@ -72,7 +71,7 @@ public class ParserDag {
             String[] newForm = finalParser(splitFormulas);
 
             System.out.println("---------------------------------------------- ");
-            for(String s : newForm){
+            for (String s : newForm) {
                 System.out.println(s);
             }
 
@@ -82,31 +81,24 @@ public class ParserDag {
     }
 
     /**
-     * Writes the updated DNF formulas to separate files.
-     * Each execution creates a new file with an incremented number in its name.
+     * Writes each formula in the array to a separate file.
+     * Each execution creates new files with incremented numbers in their names.
      *
      * @param splitFormulas The array of formatted formula parts.
      */
     public static void addToFile(String[] splitFormulas) {
-        String baseFilePath = "src/CCAlgorithm/inputFile/dnfFormula";
-        int fileIndex = 0;
-        File file;
+        String baseFilePath = "src/CCAlgorithm/alredyDnfFiles/dnfFormula";
 
-        // Find the next available file index
-        do {
-            file = new File(baseFilePath + fileIndex + ".txt");
-            fileIndex++;
-        } while (file.exists());
+        for (int i = 0; i < splitFormulas.length; i++) {
+            String filePath = baseFilePath + i + ".txt";
+            File file = new File(filePath);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (String formula : splitFormulas) {
-                writer.write(formula);
-                writer.write("#");
-                writer.newLine();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+                writer.write(splitFormulas[i]);
+                System.out.println("Formula successfully written to file: " + file.getPath());
+            } catch (IOException e) {
+                System.err.println("Error writing to file: " + e.getMessage());
             }
-            System.out.println("Formulas successfully written to file: " + file.getPath());
-        } catch (IOException e) {
-            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
 
@@ -220,11 +212,13 @@ public class ParserDag {
                 matcher = pattern.matcher(formula);
             }
 
-            /*  Debug: Output function mappings
-            System.out.println("Function Mappings: ");
-            for (Map.Entry<String, String> entry : functionMapping.entrySet()) {
-                System.out.println(entry.getKey() + " -> " + entry.getValue());
-            }*/
+            /*
+             * Debug: Output function mappings
+             * System.out.println("Function Mappings: ");
+             * for (Map.Entry<String, String> entry : functionMapping.entrySet()) {
+             * System.out.println(entry.getKey() + " -> " + entry.getValue());
+             * }
+             */
 
             // Handle negations like ~(sn) -> ~sn
             String negationPattern = "\\(~\\(s\\d+\\)\\)";
@@ -259,16 +253,18 @@ public class ParserDag {
                 formula = formula.replace(negationParenthesesMatcher.group(), "~(" + inner + ")");
             }
 
-            /*  Debugging output
-            System.out.println("Before De Morgan: " + formula);
-            */
+            /*
+             * Debugging output
+             * System.out.println("Before De Morgan: " + formula);
+             */
 
             // Apply De Morgan's laws
             formula = applyDeMorgan(formula);
 
-            /*  Debugging output
-            System.out.println("After De Morgan: " + formula);
-            */
+            /*
+             * Debugging output
+             * System.out.println("After De Morgan: " + formula);
+             */
 
             // Remove all extraneous parentheses and replace `~` with `-`
             formula = formula.replaceAll("[()]", "");
