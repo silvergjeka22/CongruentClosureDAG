@@ -1,0 +1,10 @@
+b!=Gn(u,a);
+-atom(o);
+o=cons(b,a);
+atom(car(b));
+Qn(a)!=u;
+atom(Rn(y,i,i,b,z));
+u=Pn(c,b,i,a,b,x);
+atom(cdr(o));
+z=b;
+atom(Sn(i,i));
