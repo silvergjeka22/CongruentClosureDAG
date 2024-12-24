@@ -237,7 +237,7 @@ public class CongruentClosureAlgorithm {
 		return node(find(id)).getParents();
 	}
 
-	private static String find(String id) throws Exception {
+	public static String find(String id) throws Exception {
 		return find_h(id);
 	}
 

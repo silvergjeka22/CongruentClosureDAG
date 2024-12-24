@@ -5,29 +5,20 @@ import java.util.regex.Pattern;
 import java.nio.file.*;
 import java.lang.management.*;
 
-// dag
+// dag librarys
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
 import java.lang.management.*;
 import java.util.concurrent.TimeUnit;
 
-// dag parser
+// dag parser algorithm
 import CCAlgorithm.parser.*;
 import CCAlgorithm.CongruentClosureAlgorithm;
 import CCAlgorithm.bean.*;
 
-//cnf to dnf
+//cnf to dnf transformation
 import Transformation.Selection.ParserDag;
-
-/*
- *  We need them after
-        // create a new object called ParserDag
-        ParserDag convertToDnf = new ParserDag(formulas);
-        convertToDnf.execute();
-
-        //GraphVisualization.createAndDisplayGraph();
- */
 
 public class App {
 
@@ -50,7 +41,7 @@ public class App {
             return;
         }
 
-        System.out.println("Available files:");
+        System.out.println("\nAvailable files:");
         for (int i = 0; i < inputFilesDnf.length; i++) {
             System.out.println((i + 1) + ". " + inputFilesDnf[i].getName());
         }
@@ -73,16 +64,13 @@ public class App {
         // Read the selected file and process its formula
         String formula = readFormulaFromFile(inputFilesDnf[selectedFileIndexDnf]);
 
-        // Display the formula
-        System.out.println("FORMULA:\n" + formula);
-
         // Convert the formula into an array, with the entire formula as a single
         // element
         String[] formulaArray = new String[1]; // Create an array with one element
         formulaArray[0] = formula; // Assign the entire formula string to the first element
 
         // Display the formula as an array
-        System.out.println("Formula Array: ");
+        System.out.println("Formula: ");
         for (String formulaPart : formulaArray) {
             System.out.println(formulaPart);
         }
@@ -107,7 +95,7 @@ public class App {
             return;
         }
 
-        System.out.println("Available files:");
+        System.out.println("\nAvailable files:");
         for (int i = 0; i < inputFiles.length; i++) {
             System.out.println((i + 1) + ". " + inputFiles[i].getName());
         }
@@ -257,9 +245,23 @@ public class App {
                     String.format("%.4f", ((parserUser + algoUser) / 1000d) % 60) + "s\t"
                     + "(" + (parserUser + algoUser) + "ms)");
 
+            // Ask the user if they want to display the graph in a loop
+            while (true) {
+                System.out.println("\nDo you want to display the graph? (y/n)\n");
+                String response = reader.readLine().trim().toLowerCase();
+                if (response.equals("y")) {
+                    System.out.println("Displaying the graph...\n");
 
-            // appy te graph:
-            GraphVisualization.createAndDisplayGraph();
+                    GraphVisualization.createAndDisplayGraph();
+
+                    break;
+                } else if (response.equals("n")) {
+                    System.out.println("Exiting the program...\n");
+                    break;
+                } else {
+                    System.out.println("Invalid input. Please enter 'y' for yes or 'n' for no.");
+                }
+            }
         }
     }
 

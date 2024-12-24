@@ -96,7 +96,7 @@ public class ParserDag {
 
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(splitFormulas[i]);  // Write the formula to the file
-                System.out.println("Formula successfully written to file: " + file.getPath() + "\n\n");
+                System.out.println("\nFormula successfully written to file: " + file.getPath());
             } catch (IOException e) {
                 System.err.println("Error writing to file: " + e.getMessage());
             }
