@@ -1,0 +1,1 @@
+((~(Fn(x,y))) != Fn(z,w) & store(a,b,c) != car(cons(c,d)))
