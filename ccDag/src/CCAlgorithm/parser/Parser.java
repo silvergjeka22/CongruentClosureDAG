@@ -253,122 +253,134 @@ public class Parser implements ParserConstants {
       }
     }
   }
-
   static final public Node TERM() throws ParseException {
-                Token token;
-                Node node, n1, n2;
-                String keyNode, id1, id2;
-                List<Node> arguments;
+    Token token;
+    Node node, n1, n2;
+    String keyNode, id1, id2;
+    List<Node> arguments;
     switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
     case CADR:
-      token = jj_consume_token(CADR);
-      jj_consume_token(6);
-      n1 = TERM();
-      jj_consume_token(7);
-                id1=n1.getId();
-                keyNode= token.image + "(" + id1 + ")";
-                node=ccObj.dag.get(keyNode);
-                if(node==null){
-                        node=new Node(keyNode, token.image);
-                        ccObj.dag.put(keyNode, node);
-                        node.addArg(id1);
-                        n1.addParent(keyNode);
-                        ccObj.incrEdges();
-                }
-                {if (true) return node;}
-      break;
-    case 12:
-      token = jj_consume_token(12);
-      jj_consume_token(6);
-      n1 = TERM();
-      jj_consume_token(9);
-      n2 = TERM();
-      jj_consume_token(7);
-                id1=n1.getId();
-                id2=n2.getId();
-                keyNode= token.image + "(" + id1 + "," + id2 + ")";
-                node=ccObj.dag.get(keyNode);
-                if(node==null){
-                        node=new Node(keyNode, token.image);
-                        ccObj.dag.put(keyNode, node);
-                        ccObj.consTerm.add(keyNode); // in order to maintain a "cons" nodes' List
-                        node.addArg(id1);
-                        node.addArg(id2);
-                        n1.addParent(keyNode);
-                        n2.addParent(keyNode);
-                        ccObj.incrEdges();
-                        ccObj.incrEdges();
-                }
-                {if (true) return node;}
-      break;
-    case FUNVAR:
-      token = jj_consume_token(FUNVAR);
-                          arguments=new ArrayList<Node>();
-      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 6:
+        token = jj_consume_token(CADR);
         jj_consume_token(6);
         n1 = TERM();
-                                                                             arguments.add(n1);
-        label_3:
-        while (true) {
-          switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-          case 9:
-            ;
-            break;
-          default:
-            jj_la1[6] = jj_gen;
-            break label_3;
-          }
-          jj_consume_token(9);
-          n2 = TERM();
-                                arguments.add(n2);
-        }
         jj_consume_token(7);
+        id1=n1.getId();
+        keyNode= token.image + "(" + id1 + ")";
+        node=ccObj.dag.get(keyNode);
+        if(node==null){
+            node=new Node(keyNode, token.image);
+            ccObj.dag.put(keyNode, node);
+            node.addArg(id1);
+            n1.addParent(keyNode);
+            ccObj.incrEdges();
+        }
+        {if (true) return node;}
         break;
-      default:
-        jj_la1[7] = jj_gen;
-        ;
-      }
-                        if(arguments.size()==0) // the token is a variable/costant
-                                {if (true) return insertVar(token.image);}
-                        else{                                   // the token is an uninterpreted function
-                                /* check if a function with that name 
-				 * but different arguments' number has been already read
-				 */
-                                Integer f=(Integer) functions.get(token.image);
-                                if(f!=null){
-                                        if(f.intValue()!=arguments.size())
-                                                {if (true) throw new ParseException("The function \u005c"" + token.image
-                                                        + "\u005c" has been already read with " + f.intValue() + " argument(s)");}
-                                }
-                                else
-                                        functions.put(token.image, new Integer(arguments.size()));
+    case 12:
+        token = jj_consume_token(12);
+        jj_consume_token(6);
+        n1 = TERM();
+        jj_consume_token(9);
+        n2 = TERM();
+        jj_consume_token(7);
+        id1=n1.getId();
+        id2=n2.getId();
+        keyNode= token.image + "(" + id1 + "," + id2 + ")";
+        node=ccObj.dag.get(keyNode);
+        if(node==null){
+            node=new Node(keyNode, token.image);
+            ccObj.dag.put(keyNode, node);
+            ccObj.consTerm.add(keyNode); // in order to maintain a "cons" nodes' List
+            node.addArg(id1);
+            node.addArg(id2);
+            n1.addParent(keyNode);
+            n2.addParent(keyNode);
+            ccObj.incrEdges();
+            ccObj.incrEdges();
+        }
+        {if (true) return node;}
+        break;
+    case FUNVAR:
+        token = jj_consume_token(FUNVAR);
+        arguments = new ArrayList<Node>();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case 6:
+            jj_consume_token(6);
+            n1 = TERM();
+            arguments.add(n1);
+            label_3:
+            while (true) {
+                switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+                case 9:
+                    ;
+                    break;
+                default:
+                    jj_la1[6] = jj_gen;
+                    break label_3;
+                }
+                jj_consume_token(9);
+                n2 = TERM();
+                arguments.add(n2);
+            }
+            jj_consume_token(7);
+            break;
+        default:
+            jj_la1[7] = jj_gen;
+            ;
+        }
 
-                                String s="";
-                                for(Node a: arguments)
-                                        s+= a.getId() + ",";
-                                s=s.substring(0,s.length()-1);
-                                keyNode=token.image + "(" + s + ")";
-                                node=(ccObj.dag.get(keyNode));
-                                if(node==null){
-                                        node=new Node(keyNode, token.image);
-                                        ccObj.dag.put(keyNode, node);
-                                        for(Node a: arguments){
-                                                node.addArg(a.getId());
-                                                a.addParent(keyNode);
-                                                ccObj.incrEdges();
-                                        }
-                                }
-                                {if (true) return node;}
-                        }
-      break;
+        if (arguments.size() == 1 && token.image.equals("select")) { // Handling `select`
+            Node arrayNode = arguments.get(0); // Get the array to select from
+            String selectKeyNode = "select(" + arrayNode.getId() + ")";
+            node = ccObj.dag.get(selectKeyNode);
+            if (node == null) {
+                node = new Node(selectKeyNode, "select");
+                ccObj.dag.put(selectKeyNode, node);
+                node.addArg(arrayNode.getId());
+                arrayNode.addParent(selectKeyNode);
+                ccObj.incrEdges();
+            }
+            { if (true) return node; }
+        } else if (arguments.size() == 0) { // the token is a variable/constant
+            { if (true) return insertVar(token.image); }
+        } else { // the token is an uninterpreted function
+            /* check if a function with that name 
+             * but different arguments' number has been already read
+             */
+            Integer f = (Integer) functions.get(token.image);
+            if (f != null) {
+                if (f.intValue() != arguments.size())
+                    {if (true) throw new ParseException("The function \u005c"" + token.image
+                            + "\u005c" has been already read with " + f.intValue() + " argument(s)");}
+            }
+            else
+                functions.put(token.image, new Integer(arguments.size()));
+
+            String s = "";
+            for (Node a : arguments)
+                s += a.getId() + ",";
+            s = s.substring(0, s.length() - 1);
+            keyNode = token.image + "(" + s + ")";
+            node = (ccObj.dag.get(keyNode));
+            if (node == null) {
+                node = new Node(keyNode, token.image);
+                ccObj.dag.put(keyNode, node);
+                for (Node a : arguments) {
+                    node.addArg(a.getId());
+                    a.addParent(keyNode);
+                    ccObj.incrEdges();
+                }
+            }
+            { if (true) return node; }
+        }
+        break;
     default:
-      jj_la1[8] = jj_gen;
-      jj_consume_token(-1);
-      throw new ParseException();
+        jj_la1[8] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
     }
     throw new Error("Missing return statement in function");
-  }
+}
 
   static private boolean jj_2_1(int xla) {
     jj_la = xla; jj_lastpos = jj_scanpos = token;

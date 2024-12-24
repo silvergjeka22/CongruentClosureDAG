@@ -1,0 +1,10 @@
+-COME(Gn(y,i),Fn(i,a));
+-atom(Gn(e,i));
+FORCE(u,Hn(Rn(u),o,Pn(y,c,a,x,e)),Rn(cons(o,o)),e,car(z));
+-atom(Fn(z,c));
+u!=b;
+cons(c,y)!=x;
+atom(Gn(car(e),Sn(b,a,y)));
+Pn(Rn(b),a,Hn(e,u,c),y,z)=cdr(z);
+Gn(z,i)=Pn(Sn(u,x,c),u,cdr(z),cdr(b),i);
+Sn(Rn(z),y,cons(u,i))=cons(c,a);

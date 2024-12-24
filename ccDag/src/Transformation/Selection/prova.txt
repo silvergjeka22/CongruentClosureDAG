@@ -1,1 +1,0 @@
-(((a=b)&(f(x)=y)|(car(y)=z)&(cdr(z) = car(y))&(~(h(x,y,z)=cons(x,y,z)))&(store(x)=((~(atom(z))))))->((a=b)&(f(x)=y)|(car(y)=z)&(cdr(z) = car(y))&(~(h(x,y,z)=cons(x,y,z)))&(store(x)=((~(atom(z)))))))

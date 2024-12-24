@@ -1,0 +1,1 @@
+-atom(Fn(x,y)); store(a,b,c) != car(cons(c,d));
