@@ -5,6 +5,9 @@ import java.util.regex.Pattern;
 import java.nio.file.*;
 import java.lang.management.*;
 
+// import dropQuantifiers from Transformation.Selection
+import Transformation.Selection.dropQuantifiers;
+
 // dag librarys
 import java.io.*;
 import java.util.*;
@@ -83,6 +86,9 @@ public class App {
 
         // Read the selected file and process its formula
         String formula = readFormulaFromFile(inputFilesDnf[selectedFileIndexDnf]);
+
+        // call the dropQuantifiers 
+       formula = dropQuantifiers.dropQuantifiersFromFormula(formula);
 
         // Convert the formula into an array, with the entire formula as a single element
         String[] formulaArray = new String[1]; // Create an array with one element
