@@ -59,6 +59,9 @@ The project integrates formula parsing, congruence closure calculation, and visu
 This implementation is inspired by Nelson-Oppen methods for combining decision procedures for multiple theories, with a focus on modularity and efficiency for practical use cases in SMT solving.
 
 
+![General Schematic](./Doc/img/generalSchem.png)
+
+
 ## How DNF Works
 - You can write a formula that respects the syntax specified in the `src/syntax.md` file. By following the rules outlined there, the formula will be correctly parsed and processed.
 - The DNF (Disjunctive Normal Form) transformation works by converting logical formulas into a disjunction (OR) of conjunctions (ANDs) of literals. This form is particularly useful for logical evaluation and is a standardized representation of logical expressions.
