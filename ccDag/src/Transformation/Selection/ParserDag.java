@@ -4,6 +4,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.util.Scanner;
+
 import Transformation.DNF2.*;
 import Transformation.Selection.ParserDnf;
 import java.io.BufferedWriter;
@@ -33,8 +35,7 @@ public class ParserDag {
 
     public static void callAll(String[] formulas) {
 
-        System.out.println("Starting the transformation process...");
-        System.out.println("Original formulas: " + Arrays.toString(formulas));
+        System.out.println("Original formula: " + Arrays.toString(formulas));
 
         // Loop through each formula, process it and print results
         for (String formula : formulas) {
@@ -58,19 +59,25 @@ public class ParserDag {
 
             // Insert the mappings into the DNF formula
             String updatedDnfFormula = insertMappingsIntoDnf(dnf, mappings);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Do you want to print the full updated DNF formula? (yes/no): ");
+            String userResponse = scanner.nextLine();
 
-            System.out.println("---------------------------------------------- ");
-            System.out.println("Updated DNF formula: " + updatedDnfFormula);
-            System.out.println("---------------------------------------------- ");
+            if (userResponse.equalsIgnoreCase("yes")) {
+                System.out.println("---------------------------------------------- ");
+                System.out.println("Updated DNF formula: " + updatedDnfFormula);
+                System.out.println("---------------------------------------------- ");
+            }
             // Call the split and print function
             splitFormulas = splitAndSetUpdatedDnf(updatedDnfFormula);
-            for (String splitFormula : splitFormulas) {
-                System.out.println(splitFormula);
-            }
+            // debug reasons
+            //for (String splitFormula : splitFormulas) {
+            //    System.out.println(splitFormula);
+            //}
 
             String[] newForm = finalParser(splitFormulas);
 
-            System.out.println("---------------------------------------------- ");
+            System.out.println("\nUpdated DNF formula: ");
             for (String s : newForm) {
                 System.out.println(s);
             }
@@ -190,12 +197,12 @@ public class ParserDag {
         Map<String, String> functionMapping = new HashMap<>();
         boolean modified;
 
+        System.out.println("\nOriginal splited by | (or) formulas: ");
         for (int i = 0; i < formulas.length; i++) {
-
-            System.out.println("---------------------------------------------- ");
-            System.out.println("Original Formula: " + formulas[i]);
-
             String formula = formulas[i];
+
+            // Debugging output
+            System.out.println(formula);
 
             // Regex to identify innermost function calls
             String functionPattern = "\\b([A-Za-z]+n|car|cdr|cons|store|select|atom|atoms)\\([^()]*\\)";
@@ -290,7 +297,7 @@ public class ParserDag {
             formulas[i] = formula;
 
             // Debugging output
-            System.out.println("Processed Formula: " + formula);
+            // System.out.println("Processed negation: " + formula);
         }
 
         return formulas;
