@@ -57,3 +57,21 @@ The project integrates formula parsing, congruence closure calculation, and visu
 
 ## References
 This implementation is inspired by Nelson-Oppen methods for combining decision procedures for multiple theories, with a focus on modularity and efficiency for practical use cases in SMT solving.
+
+
+## How DNF Works
+- You can write a formula that respects the syntax specified in the `src/syntax.md` file. By following the rules outlined there, the formula will be correctly parsed and processed.
+- The DNF (Disjunctive Normal Form) transformation works by converting logical formulas into a disjunction (OR) of conjunctions (ANDs) of literals. This form is particularly useful for logical evaluation and is a standardized representation of logical expressions.
+- When applying DNF transformations, ensure that you follow these basic steps:
+  1. Eliminate **implications** and **biconditionals** by using equivalences.
+  2. Ensure that all terms are in the proper conjunctive or disjunctive structure.
+
+## How DAG Works
+- The DAG (Directed Acyclic Graph) is used to represent dependencies and relationships between different terms and operations in a formula.
+- You need to be careful with the symbols used in the DAG, as they represent distinct operations, functions, and relations. Each node in the graph represents a formula or operation, and edges represent dependencies or logical relationships between these formulas.
+- The DAG works by applying the syntax rules that are defined in the `src/dagSyntad.md` file. By following these rules, you can ensure that formulas are correctly represented and processed within the DAG structure.
+- When constructing the DAG:
+  1. Ensure that each formula or operation is represented as a node.
+  2. Use directed edges to indicate logical relationships or dependencies between nodes.
+
+By maintaining proper syntax and structure as defined in `dagSyntax.md`, the DAG ensures efficient evaluation and transformation of logical formulas, especially when dealing with congruence closure and other complex operations in the system.
