@@ -1,1 +1,1 @@
-Fn(p,q) = store(x,y,z)
+store(x,y,z) = cons(a,b) ; car(cons(d,e)) != x ; y = cdr(a) ; cdr(a) = cdr(a)

@@ -24,7 +24,27 @@ public class App {
 
     public static void main(String[] args) throws FileNotFoundException, IOException, Exception {
 
-        // Parsing dnf
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String ask;
+
+        while (true) {
+            System.out.println("Do you want to go with the DNF parsing or the DAG? (Enter 'dnf' or 'dag'):");
+            ask = reader.readLine().trim().toLowerCase();
+
+            if (ask.equals("dnf")) {
+                parseDnf();
+                parseDag();
+                break;
+            } else if (ask.equals("dag")) {
+                parseDag();
+                break;
+            } else {
+                System.out.println("Invalid input. Please enter 'dnf' or 'dag'.");
+            }
+        }
+    }
+
+    private static void parseDnf() throws IOException {
         String readFile = "src/inputFiles/"; // Path to the directory containing your formula files
         File inputFile = new File(readFile);
 
@@ -64,8 +84,7 @@ public class App {
         // Read the selected file and process its formula
         String formula = readFormulaFromFile(inputFilesDnf[selectedFileIndexDnf]);
 
-        // Convert the formula into an array, with the entire formula as a single
-        // element
+        // Convert the formula into an array, with the entire formula as a single element
         String[] formulaArray = new String[1]; // Create an array with one element
         formulaArray[0] = formula; // Assign the entire formula string to the first element
 
@@ -77,8 +96,9 @@ public class App {
 
         // Execute DNF conversion with the formula array
         convertToDnf(formulaArray);
+    }
 
-        // Dag part
+    private static void parseDag() throws IOException, Exception {
         String inputDirectoryPath = "src/alredyDnfFiles/";
         File inputDirectory = new File(inputDirectoryPath);
 
@@ -118,8 +138,7 @@ public class App {
         String input = "";
         File selectedFile = inputFiles[selectedFileIndex];
 
-        try (
-                BufferedReader fileReader = new BufferedReader(new FileReader(selectedFile))) {
+        try (BufferedReader fileReader = new BufferedReader(new FileReader(selectedFile))) {
             System.out.println("Input interpreted as path of a file with the formula inside.");
             String line;
             while ((line = fileReader.readLine()) != null) {
