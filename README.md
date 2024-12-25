@@ -19,24 +19,22 @@ This repository implements a Directed Acyclic Graph (DAG)-based congruence closu
 
 The project integrates formula parsing, congruence closure calculation, and visualization. To execute the project, follow the steps below from the `ccDag` directory:
 
+### Prerequisites
+- **Java Version**: Ensure Java 11.0.21 or later is installed.
+- **Dependencies**: Include the required libraries: `gs-core-2.0.jar` and `gs-ui-swing-2.0.jar`.
+
+### Compile the Source Code
+1. **Compile the Source Code**:
+   ```bash
+   javac -cp libs/gs-core-2.0.jar:libs/gs-ui-swing-2.0.jar -d bin     src/App.java     src/GraphVisualization.java     src/CCAlgorithm/*.java     src/CCAlgorithm/parser/*.java     src/CCAlgorithm/bean/*.java     src/Transformation/Selection/*.java     src/Transformation/DNF2/*.java
+   ```
+
 ### Run the Application
-1. **Run the Application**:
+2. **Run the Application**:
    ```bash
    java -cp bin:libs/gs-core-2.0.jar:libs/gs-ui-swing-2.0.jar App
    ```
 
-### Compile the Source Code
-2. **Compile the Source Code**:
-   ```bash
-   javac -cp libs/gs-core-2.0.jar:libs/gs-ui-swing-2.0.jar -d bin \
-    src/App.java \
-    src/GraphVisualization.java \
-    src/CCAlgorithm/*.java \
-    src/CCAlgorithm/parser/*.java \
-    src/CCAlgorithm/bean/*.java \
-    src/Transformation/Selection/*.java \
-    src/Transformation/DNF2/*.java
-   ```
 
 ---
 
@@ -65,23 +63,43 @@ The project integrates formula parsing, congruence closure calculation, and visu
 ## References
 This implementation is inspired by Nelson-Oppen methods for combining decision procedures for multiple theories, with a focus on modularity and efficiency for practical use cases in SMT solving.
 
+---
 
-![General Schematic](./Doc/img/generalSchem.png)
+## Additional Details
 
+### Full Program Schema
 
-## How DNF Works
-- You can write a formula that respects the syntax specified in the `src/syntax.md` file. By following the rules outlined there, the formula will be correctly parsed and processed.
-- The DNF (Disjunctive Normal Form) transformation works by converting logical formulas into a disjunction (OR) of conjunctions (ANDs) of literals. This form is particularly useful for logical evaluation and is a standardized representation of logical expressions.
-- When applying DNF transformations, ensure that you follow these basic steps:
-  1. Eliminate **implications** and **biconditionals** by using equivalences.
-  2. Ensure that all terms are in the proper conjunctive or disjunctive structure.
+![FullSchema](./Doc/img/fullscheme.png)
 
-## How DAG Works
-- The DAG (Directed Acyclic Graph) is used to represent dependencies and relationships between different terms and operations in a formula.
-- You need to be careful with the symbols used in the DAG, as they represent distinct operations, functions, and relations. Each node in the graph represents a formula or operation, and edges represent dependencies or logical relationships between these formulas.
-- The DAG works by applying the syntax rules that are defined in the `src/dagSyntad.md` file. By following these rules, you can ensure that formulas are correctly represented and processed within the DAG structure.
-- When constructing the DAG:
-  1. Ensure that each formula or operation is represented as a node.
-  2. Use directed edges to indicate logical relationships or dependencies between nodes.
+1. **Start**: Choose to apply DNF transformation or directly process pre-transformed formulas in the `alreadyDnfFiles/` folder.
+2. **Parser**: Parses formulas to make them compatible for DAG or DNF processing.
+3. **Apply DAG or DNF**: Depending on the chosen path, transform formulas into DNF or process directly using the congruence closure DAG.
+4. **Output**: Save results to files for further analysis.
 
-By maintaining proper syntax and structure as defined in `dagSyntax.md`, the DAG ensures efficient evaluation and transformation of logical formulas, especially when dealing with congruence closure and other complex operations in the system.
+### How ccDag Works:
+
+![ccDag](./Doc/img/ccdag.png)
+
+The DAG-based congruence closure algorithm processes formulas by:
+- Initializing the DAG with all terms and relationships.
+- Merging terms marked as equal and checking for conflicts.
+- Processing array and list operations to maintain consistency.
+- Outputting the satisfiability result or the conflicting terms.
+
+### How DNF Works:
+
+![DNF](./Doc/img/dnf.png)
+
+The DNF (Disjunctive Normal Form) transformation works by:
+1. Dropping quantifiers like `∀` and `∃`.
+2. Mapping all functions and equality/inequality operations.
+3. Simplifying the formula for DNF transformation.
+4. Applying truth table transformations.
+5. Re-mapping terms to complete the DNF transformation.
+6. Saving results to files for further DAG processing.
+
+---
+
+## Java Versions
+
+This project requires Java version 11.0.21 for compatibility and performance, but it should work fine with other versions as well.
