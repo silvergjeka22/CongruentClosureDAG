@@ -26,7 +26,14 @@ The project integrates formula parsing, congruence closure calculation, and visu
 ### Compile the Source Code
 1. **Compile the Source Code**:
    ```bash
-   javac -cp libs/gs-core-2.0.jar:libs/gs-ui-swing-2.0.jar -d bin     src/App.java     src/GraphVisualization.java     src/CCAlgorithm/*.java     src/CCAlgorithm/parser/*.java     src/CCAlgorithm/bean/*.java     src/Transformation/Selection/*.java     src/Transformation/DNF2/*.java
+   javac -cp libs/gs-core-2.0.jar:libs/gs-ui-swing-2.0.jar -d bin \
+    src/App.java \
+    src/GraphVisualization.java \
+    src/CCAlgorithm/*.java \
+    src/CCAlgorithm/parser/*.java \
+    src/CCAlgorithm/bean/*.java \
+    src/Transformation/Selection/*.java \
+    src/Transformation/DNF2/*.java
    ```
 
 ### Run the Application
