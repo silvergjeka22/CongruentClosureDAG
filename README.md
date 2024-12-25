@@ -70,6 +70,8 @@ The project integrates formula parsing, congruence closure calculation, and visu
 ## References
 This implementation is inspired by Nelson-Oppen methods for combining decision procedures for multiple theories, with a focus on modularity and efficiency for practical use cases in SMT solving.
 
+![](./Doc/img/generalSchem.png)
+
 ---
 
 ## Additional Details
