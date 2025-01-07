@@ -111,11 +111,9 @@ public class CongruentClosureAlgorithm {
 		return null;
 	}
 
-	// Method to process select operations, handling select after a store
 	private static TermPair processSelect(String storeNode, String index, String selectNode) throws Exception {
 		Node n = node(storeNode);
 
-		// If storeNode is itself a store operation
 		if (n.getFn().equals("store")) {
 			String updatedIndex = n.getArgs().get(1);
 			String updatedValue = n.getArgs().get(2);
@@ -133,35 +131,50 @@ public class CongruentClosureAlgorithm {
 					return conflict; // Conflict found in select operation
 				}
 			}
+		} else if (n.getFn().equals("select")) {
+			String innerStoreNode = n.getArgs().get(0);
+			String innerIndex = n.getArgs().get(1);
+
+			if (innerIndex.equals(index)) {
+				TermPair conflict = processSelect(innerStoreNode, index, selectNode);
+				if (conflict != null) {
+					return conflict; // Conflict found in nested select
+				}
+			}
 		}
 
 		// No conflict found
 		return null;
 	}
 
-	// Method to process store operations, ensuring the store affects the right
-	// terms
 	private static TermPair processStore(String storeNode, String index, String value, String storeNodeId)
 			throws Exception {
 		Node n = node(storeNode);
 
-		// Check for conflicts in nested store operations
-		if (n.getFn().equals("store")) {
-			String nestedStoreIndex = n.getArgs().get(1);
-			String nestedStoreValue = n.getArgs().get(2);
+		// Base case: If the node is not a store, stop recursion
+		if (!n.getFn().equals("store")) {
+			return null; // No conflict
+		}
 
-			if (nestedStoreIndex.equals(index)) {
-				TermPair conflict = merge(value, nestedStoreValue);
-				if (conflict != null) {
-					return conflict; // Conflict found
-				}
-			} else {
-				// Recursively process the store operation on the previous store node
-				TermPair conflict = processStore(find(n.getArgs().get(0)), index, value, storeNodeId);
-				if (conflict != null) {
-					return conflict; // Conflict found
-				}
+		// Prevent infinite recursion: Check for visited nodes
+		Set<String> visitedNodes = new HashSet<>();
+		if (visitedNodes.contains(storeNode)) {
+			throw new Exception("Cycle detected in store operations: " + storeNode);
+		}
+		visitedNodes.add(storeNode);
+
+		String nestedStoreIndex = n.getArgs().get(1);
+		String nestedStoreValue = n.getArgs().get(2);
+
+		// Check for conflict in the current store operation
+		if (nestedStoreIndex.equals(index)) {
+			TermPair conflict = merge(value, nestedStoreValue);
+			if (conflict != null) {
+				return conflict; // Conflict found
 			}
+		} else {
+			// Recursively process the store operation on the previous store node
+			return processStore(find(n.getArgs().get(0)), index, value, storeNodeId);
 		}
 
 		// No conflict found

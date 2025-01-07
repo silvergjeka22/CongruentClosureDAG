@@ -1,1 +1,2 @@
-select(store(store(store(store(a,i,e),i,e),i,e),i,e),i) = e; 
+x=select(store(store(store(store(a,i,e),i,e),i,e),i,e),i);
+x!=e;
