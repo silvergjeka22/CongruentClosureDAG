@@ -173,21 +173,14 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
-		for (Map.Entry<String, String> entry : selectValues.entrySet()) {
-			String selectId = entry.getKey();
-			String selectValue = entry.getValue();
 
-			for (String id : dag.keySet()) {
-				if (id.equals(selectId)) {
-					// Update the id to be the value on the selectedValue
-					id = selectValue;
-				}
-			}
-		}
 		// Check inequalities
 		for (TermPair tp : notEqualPred) {
 			String first = tp.getFirst();
 			String second = tp.getSecond();
+
+			String originalFirst = first;
+			String originalSecond = second;
 
 			if (selectValues.containsKey(first)) {
 				first = selectValues.get(first);
@@ -197,7 +190,7 @@ public class CongruentClosureAlgorithm {
 			}
 
 			if (first.equals(second)) {
-				return new TermPair(first, second); // Conflict found
+				return new TermPair(originalFirst, originalSecond); // Conflict found
 			}
 		}
 
