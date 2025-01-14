@@ -1,2 +1,6 @@
-x=select(store(store(store(store(a,i,e),i,e),i,e),i,e),i);
-x!=e;
+i1=j;
+i1!=i2;
+select(a,j)=v1;
+select(store(store(store(a,i1,v1),i2,v2),i3,v3),j)=select(a,j);
+select(a,i2)=v2;
+select(a,i3)!=v3;
