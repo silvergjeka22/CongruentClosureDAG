@@ -173,7 +173,6 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
-
 		// Check inequalities
 		for (TermPair tp : notEqualPred) {
 			String first = tp.getFirst();
@@ -212,7 +211,6 @@ public class CongruentClosureAlgorithm {
 		extractAndSaveStores(storeNode);
 
 		// Check for conflicts
-
 		return null;
 	}
 
@@ -222,9 +220,51 @@ public class CongruentClosureAlgorithm {
 		String index = node.getArgs().get(1);
 		String value = node.getArgs().get(2);
 
-		// Save the store operation
-		ArrayStructure arrayStructure = new ArrayStructure(node.getId(), array, index, value);
-		arrayOperations.add(arrayStructure);
+		System.out.println("Store Node ID: " + node.getId());
+
+		Map<String, String> storeEqualStoreIndex = new HashMap<>();
+
+		// Check if the store index is equal to any other store index in the equalPred
+		for (ArrayStructure arrayOperation : arrayOperations) {
+			for (TermPair tp : equalPred) {
+				if ((tp.getFirst().equals(index) && tp.getSecond().equals(arrayOperation.getIndex())) ||
+						(tp.getSecond().equals(index) && tp.getFirst().equals(arrayOperation.getIndex()))) {
+					// System.out.println("Store index " + index + " is equal to " +
+					// arrayOperation.getIndex());
+					storeEqualStoreIndex.put(index, arrayOperation.getIndex());
+				}
+			}
+		}
+
+		// check if the map is not empty
+		if (!storeEqualStoreIndex.isEmpty()) {
+			// Temporary list to hold new ArrayStructure objects
+			List<ArrayStructure> newArrayOperations = new ArrayList<>();
+
+			// Iterate and give the values, e.g., i1 = i2 means that in array i1 I have to
+			// insert the value of i2
+			for (Map.Entry<String, String> entry : storeEqualStoreIndex.entrySet()) {
+				String storeIndex = entry.getKey();
+				String equalIndex = entry.getValue();
+
+				// Find the value associated with the equalIndex in arrayOperations
+				for (ArrayStructure arrayOperation : arrayOperations) {
+					if (arrayOperation.getIndex().equals(equalIndex)) {
+						// Create a new ArrayStructure with the index and the value of equalIndex
+						ArrayStructure newArrayOperation = new ArrayStructure(node.getId(), array, storeIndex,
+								arrayOperation.getValue());
+						newArrayOperations.add(newArrayOperation);
+					}
+				}
+			}
+
+			// Add new ArrayStructure objects to arrayOperations
+			arrayOperations.addAll(newArrayOperations);
+		} else { // Save the store operation
+			ArrayStructure arrayStructure = new ArrayStructure(node.getId(), array, index, value);
+			arrayOperations.add(arrayStructure);
+		}
+
 	}
 
 	private static TermPair merge(String id1, String id2) throws Exception {
