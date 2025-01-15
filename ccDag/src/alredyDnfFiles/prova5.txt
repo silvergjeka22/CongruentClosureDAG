@@ -1,2 +1,2 @@
-x=select(store(store(store(store(a,i,e),i,e),i,e),i,e),i);
-x!=e;
+select(l,j) != k;
+store(a,j,k) = l;

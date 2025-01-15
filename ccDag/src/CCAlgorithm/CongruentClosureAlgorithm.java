@@ -3,6 +3,7 @@ package CCAlgorithm;
 import CCAlgorithm.bean.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
 
 public class CongruentClosureAlgorithm {
 
@@ -11,6 +12,8 @@ public class CongruentClosureAlgorithm {
 	private static Set<TermPair> notEqualPred;
 	private static Set<String> atomPred;
 	private static Set<String> consTerm;
+	private static Set<ArrayStructure> arrayOperations = new HashSet<>(); // Store array operations
+	private static Map<String, String> selectValues = new HashMap<>(); // Store array values
 
 	public static TermPair NelsonOppen(Map<String, Node> Dag, Set<TermPair> EqualPred,
 			Set<TermPair> NotEqualPred, Set<String> AtomPred,
@@ -76,34 +79,46 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
-		// Array Axioms: Process select/store relations
-		// Step 5: Handle select operations
-		for (String s : dag.keySet()) {
-			Node n = node(s);
-			if (n.getFn().equals("select") && n.getArgs().size() == 2) {
-				String storeNode = n.getArgs().get(0);
-				String index = n.getArgs().get(1);
+		// Step 4: Process inequality terms
+		step = 100 / ((float) notEqualPred.size());
+		count = 0;
+		perc = 0;
+		for (TermPair tp : notEqualPred) {
+			count += step;
+			for (; count >= perc && perc <= 100; perc++) {
+				System.out.print("\rExecuting Congruent Closure Algorithm\t" + perc + "%");
+			}
+			if (find(tp.getFirst()).equals(find(tp.getSecond()))) {
+				System.out.println();
+				return tp;
+			}
+		}
 
-				TermPair conflict = processSelect(storeNode, index, s);
+		// Step 5: Process store relations first and save them all in the
+		// arrayOperations
+		for (String id : dag.keySet()) {
+			Node n = node(id);
+			if (n.getFn().equals("store")) {
+				TermPair conflict = processStore(n);
+				if (conflict != null) {
+					return conflict; // Conflict found
+				}
+			}
+		}
+		// Process select relations and
+		for (String id : dag.keySet()) {
+			Node n = node(id);
+			if (n.getFn().equals("select")) {
+				TermPair conflict = processSelect(n);
 				if (conflict != null) {
 					return conflict; // Conflict found in select operation
 				}
 			}
 		}
 
-		// Step 6: Process store operations, handling nested stores
-		for (String s : dag.keySet()) {
-			Node n = node(s);
-			if (n.getFn().equals("store")) {
-				String storeNode = n.getArgs().get(0);
-				String index = n.getArgs().get(1);
-				String value = n.getArgs().get(2);
-
-				TermPair conflict = processStore(storeNode, index, value, s);
-				if (conflict != null) {
-					return conflict; // Conflict found in store operation
-				}
-			}
+		TermPair conflictTerms = checkConflicts();
+		if (conflictTerms != null) {
+			return conflictTerms; // Conflict found
 		}
 
 		// Step 7: satisfiable
@@ -111,74 +126,175 @@ public class CongruentClosureAlgorithm {
 		return null;
 	}
 
-	private static TermPair processSelect(String storeNode, String index, String selectNode) throws Exception {
-		Node n = node(storeNode);
+	private static TermPair processSelect(Node selectNode) throws Exception {
+		String array = selectNode.getArgs().get(0);
+		String selectIndex = selectNode.getArgs().get(1);
 
-		if (n.getFn().equals("store")) {
-			String updatedIndex = n.getArgs().get(1);
-			String updatedValue = n.getArgs().get(2);
+		// Here comes all the store nodes with the 2 args that can be complex
+		// select(a,i) where a is the array and i is the index
 
-			// If the index of the store matches the select index, apply the store
-			if (index.equals(updatedIndex)) {
-				TermPair conflict = merge(selectNode, updatedValue);
-				if (conflict != null) {
-					return conflict; // Conflict found in select operation
-				}
-			} else {
-				// Recursively process the select operation on the previous store node
-				TermPair conflict = processSelect(find(n.getArgs().get(0)), index, selectNode);
-				if (conflict != null) {
-					return conflict; // Conflict found in select operation
+		for (ArrayStructure arrayOperation : arrayOperations) {
+			if (arrayOperation.getNodeRepresentation().equals(array)) {
+				// Check if the select index exists in the array operation's index
+				if (arrayOperation.getIndex().equals(selectIndex)) { // nese do jet ne arrayOperation
+					selectValues.put(selectNode.getId(), arrayOperation.getValue());
+				} else {
+					// If the index does not match, handle substitution based on equalPred
+					for (TermPair tp : equalPred) {
+						if (tp.getFirst().equals(selectIndex)) {
+							selectIndex = tp.getSecond();
+						} else if (tp.getSecond().equals(selectIndex)) {
+							selectIndex = tp.getFirst();
+						}
+					}
 				}
 			}
-		} else if (n.getFn().equals("select")) {
-			String innerStoreNode = n.getArgs().get(0);
-			String innerIndex = n.getArgs().get(1);
+			// Check if the select value is equal to the array operation value
+			if (selectIndex.equals(arrayOperation.getIndex())) {
+				selectValues.put(selectNode.getId(), arrayOperation.getValue());
+			}
+		}
 
-			if (innerIndex.equals(index)) {
-				TermPair conflict = processSelect(innerStoreNode, index, selectNode);
-				if (conflict != null) {
-					return conflict; // Conflict found in nested select
+		// System.out.println("Number of array operations: " + arrayOperations.size());
+
+		if (isSimpleSelect(selectNode)) {
+			for (TermPair tp : equalPred) {
+				if (tp.getFirst().equals(selectIndex)) {
+					selectIndex = tp.getSecond();
+				} else if (tp.getSecond().equals(selectIndex)) {
+					selectIndex = tp.getFirst();
+				}
+			}
+
+			for (ArrayStructure arrayOperation : arrayOperations) {
+				if (arrayOperation.getIndex().equals(selectIndex)) {
+					selectValues.put(selectNode.getId(), arrayOperation.getValue());
+				}
+			}
+			for (ArrayStructure arrayOperation : arrayOperations) {
+				if (arrayOperation.getIndex().equals(selectIndex)) {
+					selectValues.put(selectNode.getId(), arrayOperation.getValue());
 				}
 			}
 		}
 
-		// No conflict found
+		return null; // No conflict found
+	}
+
+	private static TermPair checkConflicts() {
+		// Check inequalities
+		for (TermPair tp : notEqualPred) {
+			String first = tp.getFirst();
+			String second = tp.getSecond();
+
+			String originalFirst = first;
+			String originalSecond = second;
+
+			if (selectValues.containsKey(first)) {
+				first = selectValues.get(first);
+			}
+			if (selectValues.containsKey(second)) {
+				second = selectValues.get(second);
+			}
+
+			if (first.equals(second)) {
+				return new TermPair(originalFirst, originalSecond); // Conflict found
+			}
+		}
+
+		// Check equalities
+		for (TermPair tp : equalPred) {
+			String first = tp.getFirst();
+			String second = tp.getSecond();
+
+			String originalFirst = first;
+			String originalSecond = second;
+
+			if (first.startsWith("select") || second.startsWith("select")) {
+
+				if (selectValues.containsKey(first)) {
+					first = selectValues.get(first);
+				}
+				if (selectValues.containsKey(second)) {
+					second = selectValues.get(second);
+				}
+
+				if (!first.equals(second)) {
+					return new TermPair(originalFirst, originalSecond); // Conflict found
+				}
+			}
+		}
+
 		return null;
 	}
 
-	private static TermPair processStore(String storeNode, String index, String value, String storeNodeId)
-			throws Exception {
-		Node n = node(storeNode);
-
-		// Base case: If the node is not a store, stop recursion
-		if (!n.getFn().equals("store")) {
-			return null; // No conflict
-		}
-
-		// Prevent infinite recursion: Check for visited nodes
-		Set<String> visitedNodes = new HashSet<>();
-		if (visitedNodes.contains(storeNode)) {
-			throw new Exception("Cycle detected in store operations: " + storeNode);
-		}
-		visitedNodes.add(storeNode);
-
-		String nestedStoreIndex = n.getArgs().get(1);
-		String nestedStoreValue = n.getArgs().get(2);
-
-		// Check for conflict in the current store operation
-		if (nestedStoreIndex.equals(index)) {
-			TermPair conflict = merge(value, nestedStoreValue);
-			if (conflict != null) {
-				return conflict; // Conflict found
+	private static boolean isSimpleSelect(Node selectNode) {
+		for (String arg : selectNode.getArgs()) {
+			Node argNode = dag.get(arg);
+			if (argNode != null && (argNode.getFn().equals("select") || argNode.getFn().equals("store"))) {
+				return false;
 			}
-		} else {
-			// Recursively process the store operation on the previous store node
-			return processStore(find(n.getArgs().get(0)), index, value, storeNodeId);
+		}
+		return true;
+	}
+
+	private static TermPair processStore(Node storeNode) throws Exception {
+		// Recursively extract and save store operations
+		extractAndSaveStores(storeNode);
+
+		// Check for conflicts
+		return null;
+	}
+
+	private static void extractAndSaveStores(Node node) throws Exception {
+		// Traverse the `store` chain recursively and extract arguments
+		String array = node.getArgs().get(0);
+		String index = node.getArgs().get(1);
+		String value = node.getArgs().get(2);
+
+		Map<String, String> storeEqualStoreIndex = new HashMap<>();
+
+		// Check if the store index is equal to any other store index in the equalPred
+		for (ArrayStructure arrayOperation : arrayOperations) {
+			for (TermPair tp : equalPred) {
+				if ((tp.getFirst().equals(index) && tp.getSecond().equals(arrayOperation.getIndex())) ||
+						(tp.getSecond().equals(index) && tp.getFirst().equals(arrayOperation.getIndex()))) {
+					// System.out.println("Store index " + index + " is equal to " +
+					// arrayOperation.getIndex());
+					storeEqualStoreIndex.put(index, arrayOperation.getIndex());
+				}
+			}
 		}
 
-		// No conflict found
-		return null;
+		// check if the map is not empty
+		if (!storeEqualStoreIndex.isEmpty()) {
+			// Temporary list to hold new ArrayStructure objects
+			List<ArrayStructure> newArrayOperations = new ArrayList<>();
+
+			// Iterate and give the values, e.g., i1 = i2 means that in array i1 I have to
+			// insert the value of i2
+			for (Map.Entry<String, String> entry : storeEqualStoreIndex.entrySet()) {
+				String storeIndex = entry.getKey();
+				String equalIndex = entry.getValue();
+
+				// Find the value associated with the equalIndex in arrayOperations
+				for (ArrayStructure arrayOperation : arrayOperations) {
+					if (arrayOperation.getIndex().equals(equalIndex)) {
+						// Create a new ArrayStructure with the index and the value of equalIndex
+						ArrayStructure newArrayOperation = new ArrayStructure(node.getId(), array, storeIndex,
+								arrayOperation.getValue());
+						newArrayOperations.add(newArrayOperation);
+					}
+				}
+			}
+
+			// Add new ArrayStructure objects to arrayOperations
+			arrayOperations.addAll(newArrayOperations);
+		} else { // Save the store operation
+			ArrayStructure arrayStructure = new ArrayStructure(node.getId(), array, index, value);
+			arrayOperations.add(arrayStructure);
+		}
+
 	}
 
 	private static TermPair merge(String id1, String id2) throws Exception {
