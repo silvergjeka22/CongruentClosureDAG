@@ -210,8 +210,7 @@ public class CongruentClosureAlgorithm {
 			String originalFirst = first;
 			String originalSecond = second;
 
-			if (first.startsWith("select") || second.startsWith("select") || first.startsWith("store")
-					|| second.startsWith("store")) {
+			if (first.startsWith("select") || second.startsWith("select")) {
 
 				if (selectValues.containsKey(first)) {
 					first = selectValues.get(first);
