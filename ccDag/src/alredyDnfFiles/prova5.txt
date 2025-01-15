@@ -1,4 +1,4 @@
 i1=j;
-i1!=i2;
-select(a,j)=v1;
-select(store(store(store(a,i1,v1),i2,v2),i3,v3),j)=v1;
+i1=i2;
+select(a,j)=v2;
+select(store(store(a,i1,v2),i2,v1),j)!=select(a,j);
