@@ -116,6 +116,11 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
+		TermPair conflictTerms = checkConflicts();
+		if (conflictTerms != null) {
+			return conflictTerms; // Conflict found
+		}
+
 		// Step 7: satisfiable
 		System.out.println("\rExecuting Congruent Closure Algorithm\t100%");
 		return null;
@@ -173,6 +178,10 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
+		return null; // No conflict found
+	}
+
+	private static TermPair checkConflicts() {
 		// Check inequalities
 		for (TermPair tp : notEqualPred) {
 			String first = tp.getFirst();
@@ -193,7 +202,31 @@ public class CongruentClosureAlgorithm {
 			}
 		}
 
-		return null; // No conflict found
+		// Check equalities
+		for (TermPair tp : equalPred) {
+			String first = tp.getFirst();
+			String second = tp.getSecond();
+
+			String originalFirst = first;
+			String originalSecond = second;
+
+			if (first.startsWith("select") || second.startsWith("select") || first.startsWith("store")
+					|| second.startsWith("store")) {
+
+				if (selectValues.containsKey(first)) {
+					first = selectValues.get(first);
+				}
+				if (selectValues.containsKey(second)) {
+					second = selectValues.get(second);
+				}
+
+				if (!first.equals(second)) {
+					return new TermPair(originalFirst, originalSecond); // Conflict found
+				}
+			}
+		}
+
+		return null;
 	}
 
 	private static boolean isSimpleSelect(Node selectNode) {
@@ -219,8 +252,6 @@ public class CongruentClosureAlgorithm {
 		String array = node.getArgs().get(0);
 		String index = node.getArgs().get(1);
 		String value = node.getArgs().get(2);
-
-		System.out.println("Store Node ID: " + node.getId());
 
 		Map<String, String> storeEqualStoreIndex = new HashMap<>();
 
