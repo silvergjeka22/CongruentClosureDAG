@@ -1,2 +1,2 @@
-select(l,j) != k;
-store(a,j,k) = l;
+i1 = j;
+select(store(a,i1,v), j) != v;

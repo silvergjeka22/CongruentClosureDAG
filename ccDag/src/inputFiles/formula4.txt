@@ -1,0 +1,1 @@
+∀x∃yz  (select(store(a,i,v),j) != v & select(store(a,i1,v),j) = v)

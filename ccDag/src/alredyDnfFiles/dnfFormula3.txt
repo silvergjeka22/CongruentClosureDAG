@@ -1,2 +1,1 @@
-i1 = i2;
-select(store(a, i1, v1), i2) = v1;
+store(x,y,z) = cons(a,b) ; car(cons(d,e)) = x ; y = cdr(a) ; cdr(a) != cdr(a)

@@ -136,7 +136,7 @@ public class CongruentClosureAlgorithm {
 		for (ArrayStructure arrayOperation : arrayOperations) {
 			if (arrayOperation.getNodeRepresentation().equals(array)) {
 				// Check if the select index exists in the array operation's index
-				if (arrayOperation.getIndex().equals(selectIndex)) { // nese do jet ne arrayOperation
+				if (arrayOperation.getIndex().equals(selectIndex)) { // if it is in the array operation
 					selectValues.put(selectNode.getId(), arrayOperation.getValue());
 				} else {
 					// If the index does not match, handle substitution based on equalPred

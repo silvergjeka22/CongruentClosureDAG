@@ -1,1 +1,2 @@
--atom(Fn(x,y)) ; store(a,b,c) != car(cons(c,d))
+i = j;
+select(store(a,i,v),j) = v;
