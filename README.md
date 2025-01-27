@@ -117,3 +117,67 @@ The DNF (Disjunctive Normal Form) transformation works by:
 ## Java Versions
 
 This project requires Java version 11.0.21 for compatibility and performance, but it should work fine with other versions as well.
+
+
+
+# Formula Generator
+
+This formula generator creates logical formulas based on various arguments you provide and saves them into a file.
+
+## How to Run
+
+1. **Navigate to the `ccDag` directory**:  
+   Ensure your terminal is in the path `ccDag`, where the `formulaGenerator.java` file is compiled and executed.
+
+2. **Compile the Java File**:  
+   Run the following command to compile the `formulaGenerator.java` file:  
+   ```bash
+   javac src/formulaGenerator.java
+   ```
+
+3. **Run the Formula Generator**:  
+   Use the following command to execute the formula generator:  
+   ```bash
+   java -cp src formulaGenerator <EQUALITIES> <DISEQUALITIES> <ATOM> <NOT_ATOM> <PRED> <NOT_PRED> <SELECT> <STORE> <MAX_RECURSION_DEPTH>
+   ```
+
+   ### Arguments Explained:
+   - **EQUALITIES**: Number of equalities to generate (e.g., `x=y`).
+   - **DISEQUALITIES**: Number of disequalities to generate (e.g., `x!=y`).
+   - **ATOM**: Number of atomic formulas (e.g., `atom(x)`).
+   - **NOT_ATOM**: Number of negated atomic formulas (e.g., `-atom(x)`).
+   - **PRED**: Number of predicate formulas (e.g., `P(x, y)`).
+   - **NOT_PRED**: Number of negated predicate formulas (e.g., `-P(x, y)`).
+   - **SELECT**: Number of `select` operations to include (e.g., `select(a, i)` inside equalities or disequalities).
+   - **STORE**: Number of `store` operations to include (e.g., `store(a, i, v)` inside equalities or disequalities).
+   - **MAX_RECURSION_DEPTH**: Maximum recursion depth for generating terms.
+
+4. **Output**:  
+   The generated formula will be saved in the `src/alredyDnfFiles/` directory. The file name includes a timestamp to avoid overwriting.
+
+## Example Usage
+
+```bash
+java -cp src formulaGenerator 5 3 2 1 4 2 2 3 3
+```
+
+This will generate a formula with the following configuration:
+- 5 equalities
+- 3 disequalities
+- 2 atomic formulas
+- 1 negated atomic formula
+- 4 predicate formulas
+- 2 negated predicate formulas
+- 2 `select` operations
+- 3 `store` operations
+- Maximum recursion depth of 3
+
+The output file will be located in `src/alredyDnfFiles/`. Check the console for the exact file path.
+
+## Notes
+
+- Ensure the `src` directory exists in `ccDag`.
+- Java version 8 or higher is recommended.
+- The generator will randomize terms and ensure no duplicate equalities.
+
+Feel free to modify the generator or extend it to suit your needs!
