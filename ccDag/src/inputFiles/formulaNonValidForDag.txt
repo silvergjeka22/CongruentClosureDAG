@@ -1,0 +1,2 @@
+# this formula is just to test the cnf to dnf transformation when we have all possibilities
+((~(select(store(a,i,v),i) = ~v) -> ~(select(a,i) != ~v)) | (~(select(a,i))) = car(x))
