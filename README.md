@@ -180,4 +180,4 @@ The output file will be located in `src/alredyDnfFiles/`. Check the console for 
 - Java version 8 or higher is recommended.
 - The generator will randomize terms and ensure no duplicate equalities.
 
-Feel free to modify the generator or extend it to suit your needs!
+- For DNF formulas, it's better to write them manually, as they need to adhere strictly to the syntax to function efficiently.
