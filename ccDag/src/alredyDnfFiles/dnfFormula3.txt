@@ -1,1 +1,1 @@
-store(x,y,z) = cons(a,b) ; car(cons(d,e)) = x ; y = cdr(a) ; cdr(a) != cdr(a)
+select(store(a,i,v),i) = v ; select(a,i) = v ; select(a,i) != car(x)
