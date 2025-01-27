@@ -32,7 +32,8 @@ This project is designed to generate formulas in Disjunctive Normal Form (DNF), 
    - Represent only as logical equivalence using implications, e.g., `((a -> b) & (b -> a))`.
 4. **Complex Functions**:
    - Avoid overly complex nested functions, e.g., `car(cons(d,e))` is acceptable, but avoid excessive nesting.
-
+5. **Devide by space the !=,= to make the De-Morgan-Works.**
+   - Example (a = b) not (a=b) [ Please make sure is wrtten in the right way].
 ---
 
 ## Formula Examples
