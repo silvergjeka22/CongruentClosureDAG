@@ -1,0 +1,1 @@
+( select(store(a,i,v),j) != v -> v != select(store(a,i,v),j) )&( v != select(store(a,i,v),j) -> (select(store(a,i,v),j) != v) )

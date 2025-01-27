@@ -1,1 +1,1 @@
-select(store(a,i,v),i) = v ; select(a,i) = v ; select(a,i) != car(x)
+select(store(a,i,v),j)!=v ; v != select(store(a,i,v),j) ; select(store(a,i,v),j) != v
