@@ -2,7 +2,7 @@ import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.*;
 import java.util.*;
 import CCAlgorithm.CongruentClosureAlgorithm;
-import CCAlgorithm.bean.Node;
+import CCAlgorithm.base.Node;
 
 public class GraphVisualization {
 

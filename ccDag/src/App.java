@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 // dag parser algorithm
 import CCAlgorithm.parser.*;
 import CCAlgorithm.CongruentClosureAlgorithm;
-import CCAlgorithm.bean.*;
+import CCAlgorithm.base.*;
 
 //cnf to dnf transformation
 import Transformation.Selection.ParserDag;

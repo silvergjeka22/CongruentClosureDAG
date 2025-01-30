@@ -1,6 +1,6 @@
 package CCAlgorithm;
 
-import CCAlgorithm.bean.*;
+import CCAlgorithm.base.*;
 import java.util.*;
 import java.io.*;
 import java.lang.reflect.Array;
