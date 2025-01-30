@@ -120,48 +120,53 @@ This project requires Java version 11.0.21 for compatibility and performance, bu
 
 
 
+
 # Formula Generator
 
-This formula generator creates logical formulas based on various arguments you provide and saves them into a file.
+This formula generator creates logical formulas based on the arguments you provide and saves them into a file.
+
+---
 
 ## How to Run
 
-1. **Navigate to the `ccDag` directory**:  
-   Ensure your terminal is in the path `ccDag`, where the `formulaGenerator.java` file is compiled and executed.
+### 1. **Navigate to the `ccDag` Directory**
+Ensure your terminal is in the `ccDag` directory, where the `formulaGenerator.java` file is located.
 
-2. **Compile the Java File**:  
-   Run the following command to compile the `formulaGenerator.java` file:  
-   ```bash
-   javac src/formulaGenerator.java
-   ```
+### 2. **Compile the Java File**
+Run the following command to compile the `formulaGenerator.java` file:
+```bash
+javac src/formulaGenerator.java
+```
 
-3. **Run the Formula Generator**:  
-   Use the following command to execute the formula generator:  
-   ```bash
-   java -cp src formulaGenerator <EQUALITIES> <DISEQUALITIES> <ATOM> <NOT_ATOM> <PRED> <NOT_PRED> <SELECT> <STORE> <MAX_RECURSION_DEPTH>
-   ```
+### 3. **Run the Formula Generator**
+Use the following command to execute the formula generator:
+```bash
+java -cp src formulaGenerator <EQUALITIES> <DISEQUALITIES> <ATOM> <NOT_ATOM> <PRED> <NOT_PRED> <SELECT> <STORE> <MAX_RECURSION_DEPTH>
+```
 
-   ### Arguments Explained:
-   - **EQUALITIES**: Number of equalities to generate (e.g., `x=y`).
-   - **DISEQUALITIES**: Number of disequalities to generate (e.g., `x!=y`).
-   - **ATOM**: Number of atomic formulas (e.g., `atom(x)`).
-   - **NOT_ATOM**: Number of negated atomic formulas (e.g., `-atom(x)`).
-   - **PRED**: Number of predicate formulas (e.g., `P(x, y)`).
-   - **NOT_PRED**: Number of negated predicate formulas (e.g., `-P(x, y)`).
-   - **SELECT**: Number of `select` operations to include (e.g., `select(a, i)` inside equalities or disequalities).
-   - **STORE**: Number of `store` operations to include (e.g., `store(a, i, v)` inside equalities or disequalities).
-   - **MAX_RECURSION_DEPTH**: Maximum recursion depth for generating terms.
+---
 
-4. **Output**:  
-   The generated formula will be saved in the `src/alredyDnfFiles/` directory. The file name includes a timestamp to avoid overwriting.
+### Arguments Explained:
+- **EQUALITIES**: Number of equalities to generate (e.g., `x=y`).
+- **DISEQUALITIES**: Number of disequalities to generate (e.g., `x!=y`).
+- **ATOM**: Number of atomic formulas (e.g., `atom(x)`).
+- **NOT_ATOM**: Number of negated atomic formulas (e.g., `-atom(x)`).
+- **PRED**: Number of predicate formulas (e.g., `P(x, y)`).
+- **NOT_PRED**: Number of negated predicate formulas (e.g., `-P(x, y)`).
+- **SELECT**: Number of `select` operations (e.g., `select(a, i)` in equalities or disequalities).
+- **STORE**: Number of `store` operations (e.g., `store(a, i, v)` in equalities or disequalities).
+- **MAX_RECURSION_DEPTH**: Maximum recursion depth for generating nested terms.
+
+---
 
 ## Example Usage
 
+### Simple Example
 ```bash
 java -cp src formulaGenerator 5 3 2 1 4 2 2 3 3
 ```
 
-This will generate a formula with the following configuration:
+This command will generate a formula with:
 - 5 equalities
 - 3 disequalities
 - 2 atomic formulas
@@ -170,14 +175,38 @@ This will generate a formula with the following configuration:
 - 2 negated predicate formulas
 - 2 `select` operations
 - 3 `store` operations
-- Maximum recursion depth of 3
+- A maximum recursion depth of 3
 
-The output file will be located in `src/alredyDnfFiles/`. Check the console for the exact file path.
+The output file will be saved in the `src/alredyDnfFiles/` directory. Check the console for the exact file path.
+
+---
+
+### Advanced Example
+To generate a more complex formula with nested `select` and `store` operations:
+```bash
+java -cp src formulaGenerator 10 5 3 2 6 4 4 5 5
+```
+
+This will produce:
+- 10 equalities
+- 5 disequalities
+- 3 atomic formulas
+- 2 negated atomic formulas
+- 6 predicate formulas
+- 4 negated predicate formulas
+- 4 `select` operations
+- 5 `store` operations
+- A maximum recursion depth of 5
+
+---
+
+## Output
+The generated formula will be saved in a file located in the `src/alredyDnfFiles/` directory. The file name will include a timestamp to avoid overwriting previous files.
+
+---
 
 ## Notes
-
-- Ensure the `src` directory exists in `ccDag`.
-- Java version 8 or higher is recommended.
-- The generator will randomize terms and ensure no duplicate equalities.
-
-- For DNF formulas, it's better to write them manually, as they need to adhere strictly to the syntax to function efficiently.
+- Ensure the `src` directory exists in the `ccDag` directory before running the commands.
+- Use Java version 8 or higher.
+- The generator randomizes terms and ensures no duplicate equalities or disequalities.
+- If you need specific formulas or DNF structures, it's better to write them manually to ensure they adhere to the required syntax.

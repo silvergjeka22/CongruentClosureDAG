@@ -78,7 +78,7 @@ public class formulaGenerator {
                 case 6: result += makeEqualityWithSelect();
                         selects--;
                         break;
-                case 7: result += makeEqualityWithStore();
+                case 7: result += makeComplexStoreSelect();
                         stores--;
                         break;
             }
@@ -90,7 +90,7 @@ public class formulaGenerator {
     private static String makeEquality(boolean type) {
         String r1, r2;
         r1 = makeTerm(1, random(1, recMax));
-        while (r1.equals(r2 = makeTerm(1, random(1, recMax)))); // avoid two equals terms
+        while (r1.equals(r2 = makeTerm(1, random(1, recMax)))); // avoid two equal terms
         if (type)
             return r1 + "=" + r2;
         else
@@ -139,14 +139,14 @@ public class formulaGenerator {
         return isEquality ? selectExpr + "=" + value : selectExpr + "!=" + value;
     }
 
-    private static String makeEqualityWithStore() {
+    private static String makeComplexStoreSelect() {
         String array = VAR[random(0, VAR.length - 1)];
-        String index = makeTerm(1, random(1, recMax));
-        String value = makeTerm(1, random(1, recMax));
-        String newArray = "store(" + array + "," + index + "," + value + ")";
+        String index1 = makeTerm(1, random(1, recMax));
+        String value1 = makeTerm(1, random(1, recMax));
+        String storeExpr = "store(" + array + "," + index1 + "," + value1 + ")";
+        String selectExpr = "select(" + storeExpr + "," + index1 + ")";
         boolean isEquality = random(0, 1) == 0;
-        String compareValue = makeTerm(1, random(1, recMax));
-        return isEquality ? newArray + "=" + compareValue : newArray + "!=" + compareValue;
+        return isEquality ? selectExpr + "=" + value1 : selectExpr + "!=" + value1;
     }
 
     private static String makeTerm(int recLevel, int recTerm) {
@@ -193,14 +193,12 @@ public class formulaGenerator {
 
     private static void writeFormulaToFile(String formula) {
         try {
-            // Specify the directory
             String path = "src/alredyDnfFiles/";
             File dir = new File(path);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
 
-            // Create a file with a timestamp to avoid overwriting
             File file = new File(path + "formula_" + System.currentTimeMillis() + ".txt");
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(formula);
