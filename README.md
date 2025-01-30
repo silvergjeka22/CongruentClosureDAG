@@ -34,7 +34,7 @@ The project integrates formula parsing, congruence closure calculation, and visu
     src/GraphVisualization.java \
     src/CCAlgorithm/*.java \
     src/CCAlgorithm/parser/*.java \
-    src/CCAlgorithm/bean/*.java \
+    src/CCAlgorithm/base/*.java \
     src/Transformation/Selection/*.java \
     src/Transformation/DNF2/*.java
    ```
@@ -54,7 +54,7 @@ The project integrates formula parsing, congruence closure calculation, and visu
 
   - **`CCAlgorithm/`**: Implements the core congruence closure algorithm.
   - **`CCAlgorithm/parser/`**: Includes parsers for reading logical formulas.
-  - **`CCAlgorithm/bean/`**: Defines data structures used in the algorithm.
+  - **`CCAlgorithm/base/`**: Defines data structures used in the algorithm.
   - **`Transformation/Selection/`**: Contains selection transformation logic.
   - **`Transformation/DNF2/`**: Includes transformations to Disjunctive Normal Form and Conjunctive Normal Form.
   - **`GraphVisualization.java`**: Visualizes the congruence closure DAG.

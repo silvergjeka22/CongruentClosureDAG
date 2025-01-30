@@ -1,4 +1,4 @@
-package CCAlgorithm.bean;
+package CCAlgorithm.base;
 
 import java.util.*;
 
