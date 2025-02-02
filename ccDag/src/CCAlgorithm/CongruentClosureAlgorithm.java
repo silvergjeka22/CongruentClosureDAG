@@ -33,7 +33,7 @@ public class CongruentClosureAlgorithm {
 	}
 
 	private static TermPair nelsonOppen_h() throws Exception {
-		// Step 1: Handle the atom and consTerm axioms as in the original code
+		// Step 1: Handle the atom and consTerm axioms
 		for (String id : atomPred)
 			if (consTerm.contains(id)) {
 				System.out.println("\rExecuting Congruent Closure Algorithm\t0%");
@@ -44,7 +44,7 @@ public class CongruentClosureAlgorithm {
 		for (String s : consTerm)
 			node(s).getBanned().addAll(atomPred);
 
-		// Step 2: Handle car/cdr projection axioms as in the original code
+		// Step 2: Handle car/cdr projection axioms
 		Node nTemp;
 		TermPair ct = null;
 		for (String s : consTerm) {
